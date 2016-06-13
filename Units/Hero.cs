@@ -1,5 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
 
 //技能表
 /*
@@ -13,7 +17,7 @@ public class Skill1{
 	public bool activited = true;//是否能点
 	public int level = 0;
 	public int maxLevel = 3;
-	public float ratio = 50f;
+	public float ratio = 150f;
 
 	public float AddHp(){
 		return level * ratio;
@@ -24,7 +28,7 @@ public class Skill2{
 	public bool activited = false;
 	public int level = 0;
 	public int maxLevel = 3;
-	public float ratio = 20f;
+	public float ratio = 25f;
 
 	public float AddAttack(){
 		return level * ratio;
@@ -35,7 +39,7 @@ public class Skill3{
 	public bool activited = false;
 	public int level = 0;
 	public int maxLevel = 3;
-	public float ratio = 5f;
+	public float ratio = 3f;
 
 	public float AddSpeed(){
 		return level * ratio;
@@ -48,7 +52,7 @@ public class Skill4{
 	public int maxLevel = 3;
 	public float initialRadius = 20f;
 	public float radiusRatio = 5f;
-	public float HPRatio = 20f;
+	public float HPRatio = 60f;
 
 	public float getRadius(){
 		if (level > 0)
@@ -67,7 +71,7 @@ public class Skill5{
 	public int maxLevel = 3;
 	public float initialRadius = 20f;
 	public float radiusRatio = 5f;
-	public float speedRatio = 2f;
+	public float speedRatio = 1.5f;
 
 	public float getRadius(){
 		if (level > 0)
@@ -200,11 +204,14 @@ public class Skill9{
 public class Hero : MonoBehaviour {
 
 	//public GameObject hero;
+	public string saveFileNamePrefix = "save/";
+	public string saveFileNameSuffix = ".txt";
+	public string heroName = "Stone";
 
 	//basic information
 	public int level = 1;
 	public int skillPoint = 0;
-	public int exp = 0;
+	public float exp = 0;
 	public int expHap = 1000;
 	//速度极限值
 	public float MaxSpeed = 60f;
@@ -216,6 +223,10 @@ public class Hero : MonoBehaviour {
 	public float HP;
 	public float speed;
 	public float attack;
+	//特殊额外值
+	public float eltraHP;
+	public float eltraSpeed;
+	public float eltraAttack;
 	//正常属性值
 	public float maxHP = 1000f;
 	public float ordSpeed = 25f;
@@ -259,13 +270,57 @@ public class Hero : MonoBehaviour {
 	public float slowLastTime = 0f;
 	public float inSlowLastTime = 0f;
 
-	void Init(){
+	void Access(){
 		/*
 		 *从文件中读入等级技能数据 
 		 */
-		maxHP = maxHP + level * HPGap;
-		ordSpeed = ordSpeed + level * speedGap;
-		ordAttack = ordAttack + level * attackGap;
+		string fileName = saveFileNamePrefix + "_Player_" + heroName + saveFileNameSuffix;
+		StreamReader sr = new StreamReader (fileName);
+		string sLine = "";
+		int lineNo = 1;
+		while ((sLine = sr.ReadLine()) != null) {
+			sLine.Trim();
+			if (sLine[0] == '#')
+				continue;
+			switch (lineNo){
+			case 1:
+			{
+				string[] splitArray = sLine.Split(new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
+				level = int.Parse(splitArray[0]);
+				eltraHP = float.Parse(splitArray[1]);
+				eltraSpeed = float.Parse(splitArray[2]);
+				eltraAttack = float.Parse(splitArray[3]);
+				skillPoint = int.Parse(splitArray[4]);
+				exp = float.Parse(splitArray[5]);
+				break;	
+			}
+			case 2:
+			{
+				string[] splitArray = sLine.Split(new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
+				skill1.level = int.Parse(splitArray[0]);
+				skill2.level = int.Parse(splitArray[1]);
+				skill3.level = int.Parse(splitArray[2]);
+				skill4.level = int.Parse(splitArray[3]);
+				skill5.level = int.Parse(splitArray[4]);
+				skill6.level = int.Parse(splitArray[5]);
+				skill7.level = int.Parse(splitArray[6]);
+				skill8.level = int.Parse(splitArray[7]);
+				skill9.level = int.Parse(splitArray[8]);
+				break;	
+			}
+			default:
+				break;
+			}
+			lineNo++;
+		}
+		sr.Close ();
+	}
+
+	void Init(){
+		//初始化信息
+		maxHP = maxHP + level * HPGap + eltraHP;
+		ordSpeed = ordSpeed + level * speedGap + eltraSpeed;
+		ordAttack = ordAttack + level * attackGap + eltraAttack;
 
 		maxHP += skill1.AddHp ();
 		ordSpeed += skill3.AddSpeed ();
@@ -281,18 +336,39 @@ public class Hero : MonoBehaviour {
 		ordSpeed += addSpeed;
 	}
 
+	void Sync(){
+		//写文件
+		//在英雄信息更改时调用
+		Debug.Log("sync");
+		string fileName = saveFileNamePrefix + "_Player_" + heroName + saveFileNameSuffix;
+		FileStream fs = new FileStream (fileName, FileMode.Truncate, FileAccess.Write);
+		StreamWriter sw = new StreamWriter (fs);
+		string inf = "";
+		inf += "_" + level.ToString () + ";";
+		inf += "_" + eltraHP.ToString () + ";";
+		inf += "_" + eltraSpeed.ToString () + ";";
+		inf += "_" + eltraAttack.ToString () + ";";
+		inf += "_" + skillPoint.ToString () + ";";
+		inf += "_" + exp.ToString () + ";";
+		inf += "\n";
+		inf += "_" + skill1.level.ToString () + ";";
+		inf += "_" + skill2.level.ToString () + ";";
+		inf += "_" + skill3.level.ToString () + ";";
+		inf += "_" + skill4.level.ToString () + ";";
+		inf += "_" + skill5.level.ToString () + ";";
+		inf += "_" + skill6.level.ToString () + ";";
+		inf += "_" + skill7.level.ToString () + ";";
+		inf += "_" + skill8.level.ToString () + ";";
+		inf += "_" + skill9.level.ToString () + ";";
+		sw.Write (inf);
+		sw.Flush ();
+		sw.Close ();
+		fs.Close ();
+	}
+
 	// Use this for initialization
 	void Start () {
-		skill1.level = 1;
-		skill2.level = 1;
-		skill3.level = 1;
-		skill4.level = 3;
-		skill5.level = 3;
-		skill6.level = 1;
-		skill7.level = 1;
-		skill8.level = 1;
-		skill9.level = 1;
-
+		Access ();
 		Init ();
 
 		HP = maxHP;
@@ -311,6 +387,7 @@ public class Hero : MonoBehaviour {
 			HP = maxHP;
 			attack = ordAttack;
 			speed = ordSpeed;
+			Sync();
 		}
 	}
 
@@ -392,6 +469,7 @@ public class Hero : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
+		exp += 100f * Time.deltaTime;
 		SlowStateCheck ();
 		HeroLevelUpCheck ();
 		SkillActivateCheck ();
@@ -405,6 +483,7 @@ public class Hero : MonoBehaviour {
 			skillPoint--;
 			skill1.level++;
 			maxHP += skill1.AddHp ();
+			Sync();
 		}
 	}
 	public void Skill2LevelUp(){
@@ -413,6 +492,7 @@ public class Hero : MonoBehaviour {
 			skillPoint--;
 			skill2.level++;
 			ordAttack += skill2.AddAttack ();
+			Sync();
 		}
 	}
 	public void Skill3LevelUp(){
@@ -421,6 +501,7 @@ public class Hero : MonoBehaviour {
 			skillPoint--;
 			skill3.level++;
 			ordSpeed += skill3.AddSpeed ();
+			Sync();
 		}
 	}
 	public void Skill4LevelUp(){
@@ -429,6 +510,7 @@ public class Hero : MonoBehaviour {
 			skill4.level++;
 			addHP = skill4.getAddHP ();
 			addHPRadius = skill4.getRadius ();
+			Sync();
 		}
 	}
 	public void Skill5LevelUp(){
@@ -437,30 +519,35 @@ public class Hero : MonoBehaviour {
 			skill5.level++;
 			addSpeed = skill5.getAddSpeed ();
 			addSpeedRadius = skill5.getRadius ();
+			Sync();
 		}
 	}
 	public void Skill6LevelUp(){
 		if (skillPoint > 0 && skill6.activited && skill6.level < skill6.maxLevel) {
 			skillPoint--;
 			skill6.level++;
+			Sync();
 		}
 	}
 	public void Skill7LevelUp(){
 		if (skillPoint > 0 && skill7.activited && skill7.level < skill7.maxLevel) {
 			skillPoint--;
 			skill7.level++;
+			Sync();
 		}
 	}
 	public void Skill8LevelUp(){
 		if (skillPoint > 0 && skill8.activited && skill8.level < skill8.maxLevel) {
 			skillPoint--;
 			skill8.level++;
+			Sync();
 		}
 	}
 	public void Skill9LevelUp(){
 		if (skillPoint > 0 && skill9.activited && skill9.level < skill9.maxLevel) {
 			skillPoint--;
 			skill9.level++;
+			Sync();
 		}
 	}
 
