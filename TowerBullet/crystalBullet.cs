@@ -7,7 +7,7 @@ public class crystalBullet : MonoBehaviour {
     public GameObject bullet;
     private GameObject myBullet;
     private ArrayList targets = new ArrayList();
-    private GameObject target;
+    public GameObject target;
     private int targetindex;
     private int rotationSpeed = 10;
     private Vector3 tt_p;

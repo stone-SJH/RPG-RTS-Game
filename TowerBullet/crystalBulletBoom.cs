@@ -23,5 +23,12 @@ public class crystalBulletBoom : MonoBehaviour {
     {
         if (col.gameObject.tag != "soldier") return;
         targets.Add(col.gameObject);
+        makeDamage();
     }
+
+    void makeDamage()
+    {
+
+    }
+
 }

@@ -43,7 +43,7 @@ public class Troop : MonoBehaviour {
 		hero = h.GetComponent<Hero> ();
 		animation = GetComponent<Animation>();
 
-		HP = 741f;
+		HP = maxHP;
 		speed = ordSpeed;
 		attack = ordAttack;
 		healCount = hero.healCount;
@@ -148,7 +148,7 @@ public class Troop : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
-		HP -= 40 * Time.deltaTime;
+		//HP -= 40 * Time.deltaTime;
 		SpeedDetermine ();
 		SlowStateCheck ();
 		DeathCheck ();

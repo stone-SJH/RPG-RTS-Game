@@ -9,7 +9,7 @@ public class teslaBullet : MonoBehaviour {
     public GameObject bullet1;
     private GameObject myBullet1;
     private ArrayList targets = new ArrayList();
-    private GameObject target;
+    public GameObject target;
     private int targetindex;
     private int rotationSpeed = 10;
     private Vector3 tt_p;
@@ -43,18 +43,19 @@ public class teslaBullet : MonoBehaviour {
         myBullet.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
         myBullet.GetComponent<Transform>().rotation = Quaternion.LookRotation(tt_p - myBullet.transform.position);
         myBullet.GetComponent<Transform>().Rotate(new Vector3(90, 0, 0));
-
+		/*
         myBullet1 = Instantiate(bullet1);
         myBullet1.GetComponent<Transform>().SetParent(this.GetComponent<Transform>());
         myBullet1.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
-
+		*/
         //myBullet.GetComponent<Transform>().Rotate(new Vector3(this.GetComponent<Transform>().FindChild("Base").GetComponent<Transform>().FindChild("Turret").GetComponent<Transform>().localEulerAngles.x, this.GetComponent<Transform>().localEulerAngles.y, 0.0f));
     }
 
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-        Debug.Log("fire_tesla");
+        //
+		//Debug.Log("fire_tesla");
         targets.Add(col.gameObject);
         if (isFire == false)
         {
@@ -118,7 +119,7 @@ public class teslaBullet : MonoBehaviour {
 
     void beginFire()
     {
-        Debug.Log("fff");
+        //Debug.Log("fff");
         //this.transform.GetComponent<Animator>().SetBool("shoot", true);
         isFire = true;
     }

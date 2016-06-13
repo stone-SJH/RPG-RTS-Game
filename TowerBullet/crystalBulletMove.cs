@@ -55,14 +55,18 @@ public class crystalBulletMove : MonoBehaviour
 
     void findTarget()
     {
-        foreach (GameObject obj in makeSoldier.soldiers)
+        /*foreach (GameObject obj in makeSoldier.soldiers)
         {
             if (obj.name == this.transform.parent.GetComponent<Text>().text)
             {
                 target = obj;
                 break;
             }
-        }
+        }*/
+        target = this.transform.parent.transform.GetComponent<crystalBullet>().target;
 
     }
+
+    
+
 }

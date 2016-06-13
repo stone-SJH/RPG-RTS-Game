@@ -37,11 +37,12 @@ public class teslaBulletMove : MonoBehaviour {
 
     void OnTriggerEnter(Collider col)
     {
-        Debug.Log(target.gameObject.name + "_tesla");
+        //Debug.Log(target.gameObject.name + "_tesla");
         if (col.gameObject.name == target.gameObject.name)
         {
             
             destroyself();
+            makeDamage();
         }
     }
 
@@ -52,14 +53,26 @@ public class teslaBulletMove : MonoBehaviour {
 
     void findTarget()
     {
-        foreach (GameObject obj in makeSoldier.soldiers)
+        /*foreach (GameObject obj in makeSoldier.soldiers)
         {
             if (obj.name == this.transform.parent.GetComponent<Text>().text)
             {
                 target = obj;
                 break;
             }
-        }
+        }*/
+        target = this.transform.parent.transform.GetComponent<teslaBullet>().target;
 
     }
+
+    void makeDamage()
+    {
+		Troop troop = target.transform.GetComponent<Troop> ();
+		Hero hero = target.transform.GetComponent<Hero> ();
+		if (troop != null)
+			troop.HP -= 30;
+		else if (hero != null)
+			hero.HP -= 30;
+    }
+
 }

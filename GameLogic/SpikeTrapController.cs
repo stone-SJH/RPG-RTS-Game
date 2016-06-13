@@ -32,6 +32,7 @@ public class SpikeTrapController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
+		Debug.Log (other.gameObject.name);
 		Hero hero = other.gameObject.GetComponent<Hero> ();
 		hero.HP -= damage;
 		this.transform.position = new Vector3 (this.transform.position.x, bottomHeight, this.transform.position.z);

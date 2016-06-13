@@ -8,7 +8,12 @@ public class TeleportGateController : MonoBehaviour {
 	public bool single = true;
 	public float radius0 = 5f;
 	public float radius1 = 5f;
+	public float coolDown = 5f;	
+	public Hero hero;
 
+	private bool canTeleport = true;
+	private float inCoolDownTime = 0f;
+	private Troop[] troops;
 	private Vector3 target0;
 	private Vector3 target1;
 	// Use this for initialization
@@ -19,6 +24,22 @@ public class TeleportGateController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if (canTeleport && Vector2.Distance (new Vector2 (hero.transform.position.x, hero.transform.position.z), new Vector2 (target0.x, target0.z)) <= radius0) {
+			hero.transform.position = target1;
+			canTeleport = false;
+			inCoolDownTime = 0f;
+		}
+		if (!single && canTeleport && Vector2.Distance (new Vector2 (hero.transform.position.x, hero.transform.position.z), new Vector2 (target1.x, target1.z)) <= radius1) {
+			hero.transform.position = target0;
+			canTeleport = false;
+			inCoolDownTime = 0f;
+		}
+		if (!canTeleport) {
+			inCoolDownTime += Time.deltaTime;
+		}
+		if (inCoolDownTime >= coolDown) {
+			canTeleport = true;
+			inCoolDownTime = 0f;
+		}
 	}
 }
