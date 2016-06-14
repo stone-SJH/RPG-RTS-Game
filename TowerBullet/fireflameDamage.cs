@@ -1,36 +1,32 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
-public class teslaBullet : MonoBehaviour {
+
+public class fireflameDamage : MonoBehaviour{
 
     public GameObject bullet;
     private GameObject myBullet;
-    public GameObject bullet1;
-    private GameObject myBullet1;
     private ArrayList targets = new ArrayList();
     public GameObject target;
     private int targetindex;
     private int rotationSpeed = 10;
     private Vector3 tt_p;
     private bool isFire;
-    public float CD=0.3f;
+    public float CD=0.2f;
     private float incd;
 
-    public float Damage=30f;
+    public float Damage = 30f;
 
-    private Troop troop;                            //<<<<<<<<<---------------------------------------
+    private Troop troop;                                       //<<<<<<<<<---------------------------------------
     private Hero hero;
-
-
 
     // Use this for initialization
     void Start()
     {
-
         isFire = false;
         incd = 0;
-
+        
     }
 
     // Update is called once per frame
@@ -39,9 +35,14 @@ public class teslaBullet : MonoBehaviour {
         //toTarget();
         if (isFire)
         {
-            toTarget();
-            Fire();
+            //toTarget();
+            if (targets.Count == 0)
+                endFire();
+            else
+                Fire();
         }
+        
+
     }
 
     void makeBullet()
@@ -49,13 +50,8 @@ public class teslaBullet : MonoBehaviour {
         myBullet = Instantiate(bullet);
         myBullet.GetComponent<Transform>().SetParent(this.GetComponent<Transform>());
         myBullet.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
-        myBullet.GetComponent<Transform>().rotation = Quaternion.LookRotation(tt_p - myBullet.transform.position);
-        myBullet.GetComponent<Transform>().Rotate(new Vector3(90, 0, 0));
-
-        /*myBullet1 = Instantiate(bullet1);
-        myBullet1.GetComponent<Transform>().SetParent(this.GetComponent<Transform>());
-        myBullet1.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
-        */
+        //myBullet.GetComponent<Transform>().rotation = Quaternion.LookRotation(tt_p - myBullet.transform.position);
+        //myBullet.GetComponent<Transform>().Rotate(new Vector3(90, 0, 0));
 
         //myBullet.GetComponent<Transform>().Rotate(new Vector3(this.GetComponent<Transform>().FindChild("Base").GetComponent<Transform>().FindChild("Turret").GetComponent<Transform>().localEulerAngles.x, this.GetComponent<Transform>().localEulerAngles.y, 0.0f));
     }
@@ -63,13 +59,13 @@ public class teslaBullet : MonoBehaviour {
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-        //Debug.Log("fire_tesla");
+        Debug.Log("fire");
         targets.Add(col.gameObject);
         if (isFire == false)
         {
-            target = (GameObject)targets[0];
-            targetindex = 0;
-            this.GetComponent<Text>().text = target.gameObject.name;
+            //target = (GameObject)targets[0];
+            //targetindex = 0;
+            //this.GetComponent<Text>().text = target.gameObject.name;
             beginFire();
         }
     }
@@ -77,19 +73,12 @@ public class teslaBullet : MonoBehaviour {
     void OnTriggerExit(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-		if (targets.Count == 0)
-			return;
-        if (targets.Count == 1 && col.gameObject.name == target.gameObject.name)
+        if (targets.Count == 1)
         {
             targets.Remove(col.gameObject);
             endFire();
         }
-        else if (col.gameObject.name == target.gameObject.name)
-        {
-            targets.Remove(col.gameObject);
-            target = (GameObject)targets[0];
-            this.GetComponent<Text>().text = target.gameObject.name;
-        }
+        
         else
         {
             targets.Remove(col.gameObject);
@@ -104,7 +93,8 @@ public class teslaBullet : MonoBehaviour {
 
     void deleteBullet()
     {
-
+     
+        Destroy(myBullet);
     }
 
     void toTarget()
@@ -129,39 +119,24 @@ public class teslaBullet : MonoBehaviour {
 
     void beginFire()
     {
-        //Debug.Log("fff");
-        //this.transform.GetComponent<Animator>().SetBool("shoot", true);
+        this.transform.GetComponent<Animator>().SetBool("shoot", true);
         isFire = true;
+        makeBullet();
     }
 
     void endFire()
     {
-        //this.transform.GetComponent<Animator>().SetBool("shoot", false);
+        this.transform.GetComponent<Animator>().SetBool("shoot", false);
         isFire = false;
+        deleteBullet();
     }
 
     void Fire()
     {
         if (incd == 0)
         {
-            if (ifTargetisDead())
-            {
-                if (targets.Count == 1)
-                {
-                    targets.Remove(target);
-                    endFire();
-                }
-                else
-                {
-                    targets.Remove(target);
-                    target = (GameObject)targets[0];
-                    makeBullet();
-                }
-            }
-            else
-            {
-                makeBullet();
-            }
+            //makeBullet();
+            makeDamage();
             incd += Time.deltaTime;
         }
         else if (incd >= CD)
@@ -172,18 +147,28 @@ public class teslaBullet : MonoBehaviour {
         {
             incd += Time.deltaTime;
         }
+        
     }
 
-    bool ifTargetisDead()
+    void makeDamage()
     {
-		troop = target.transform.GetComponent<Troop> ();
-		hero = target.transform.GetComponent<Hero> ();
-		if (/*(hero != null && hero.isDead()) ||*/(troop != null && troop.isDead))
+        foreach(GameObject obj in targets)
         {
-            
-            return true;
+            troop = obj.transform.GetComponent<Troop>();
+            hero = obj.transform.GetComponent<Hero>();
+            if (troop != null){
+                if(!troop.isDead)
+                    troop.HP -= Damage;
+                else
+                    targets.Remove(obj);
+            }
+            else if (hero != null){
+                if(hero.HP >= 0f)
+                    hero.HP -= Damage;
+                else
+                    targets.Remove(obj);
+            }
         }
-        return false;
     }
 
 }

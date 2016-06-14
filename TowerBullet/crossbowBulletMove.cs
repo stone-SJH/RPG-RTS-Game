@@ -8,6 +8,17 @@ public class crossbowBulletMove : MonoBehaviour {
     private float z;
     public int speed=500;
     private GameObject target;
+    private float Damage;
+	private float height;
+    private Troop troop;
+    private Hero hero;
+
+
+
+    void Awake()
+    {
+        Destroy(this.gameObject, 5);
+    }
 
 	// Use this for initialization
 	void Start () {
@@ -20,7 +31,7 @@ public class crossbowBulletMove : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         //this.transform.position=new Vector3(this.transform.position)
-        this.transform.rotation = Quaternion.LookRotation(target.transform.position - this.transform.position);
+        this.transform.rotation = Quaternion.LookRotation(new Vector3(target.transform.position.x, target.transform.position.y + height, target.transform.position.z) - this.transform.position);
         this.transform.Rotate(new Vector3(90, 0, 0));
         
         this.transform.Translate(Vector3.up * Time.deltaTime*speed);
@@ -31,7 +42,7 @@ public class crossbowBulletMove : MonoBehaviour {
 
     void OnTriggerEnter(Collider col)
     {
-        Debug.Log(target.gameObject.name+"1");
+        //Debug.Log(target.gameObject.name+"1");
         if (col.gameObject.name == target.gameObject.name)
         {
             destroyself();
@@ -46,21 +57,19 @@ public class crossbowBulletMove : MonoBehaviour {
 
     void findTarget()
     {
-        /*foreach (GameObject obj in makeSoldier.soldiers)
-        {
-            if(obj.name== this.transform.parent.GetComponent<Text>().text)
-            {
-                target = obj;
-                break;
-            }
-        }*/
         target = this.transform.parent.transform.GetComponent<crossbowBullet>().target;
-
+        Damage = this.transform.parent.transform.GetComponent<crossbowBullet>().Damage;
+		troop = target.transform.GetComponent<Troop>();
+		hero = target.transform.GetComponent<Hero>();
+		height = target.transform.GetComponent<CharacterController>().height * target.transform.lossyScale.y * 0.6f;	
     }
 
     void makeDamage()
     {
-
+		if (troop != null)
+            troop.HP -= Damage;
+        else if (hero != null)
+            hero.HP -= Damage;
     }
 
 }

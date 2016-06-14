@@ -4,8 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-public class CatchFireFlame : MonoBehaviour
-{
+public class CatchMortar : MonoBehaviour {
 
     public EventSystem eventsystem;
     public GraphicRaycaster graphicRaycaster;
@@ -17,17 +16,20 @@ public class CatchFireFlame : MonoBehaviour
     private ParticleSystem myps;
 
 
+
+
     //是否被选中
     private bool Ifcatch;
 
     private string name;
-    private string parent_name;
 
+    private string parent_name;
 
     void Start()
     {
         name = this.gameObject.name;
         parent_name = this.transform.parent.gameObject.name;
+
 
         Ifcatch = false;
     }
@@ -51,7 +53,7 @@ public class CatchFireFlame : MonoBehaviour
         Ray mRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit mHit;
         //射线检验  
-        if (Physics.Raycast(mRay, out mHit,Mathf.Infinity,1<<8))
+        if (Physics.Raycast(mRay, out mHit, Mathf.Infinity, 1 << 8))
         {
             //射线击中当前物体，表示鼠标指向该物体
 
@@ -59,6 +61,7 @@ public class CatchFireFlame : MonoBehaviour
             {
                 //更改shader方法
                 makeEffect();
+
 
 
                 //鼠标左键点击选中
@@ -76,6 +79,7 @@ public class CatchFireFlame : MonoBehaviour
                 {
                     deleteEffect();
 
+
                 }
                 //鼠标左键点击取消
                 if (Input.GetMouseButtonDown(0))
@@ -92,6 +96,7 @@ public class CatchFireFlame : MonoBehaviour
             if (Ifcatch == false)
             {
                 deleteEffect();
+
 
             }
             //鼠标左键点击取消
@@ -122,7 +127,7 @@ public class CatchFireFlame : MonoBehaviour
         {
             mytxt = (Text)Instantiate(txt);
             mytxt.GetComponent<Transform>().SetParent(ca.GetComponent<Transform>());
-            mytxt.text = "FireFlame";
+            mytxt.text = "Mortar";
             mytxt.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
         }
 
@@ -138,7 +143,7 @@ public class CatchFireFlame : MonoBehaviour
         {
             myps = (ParticleSystem)Instantiate(ps);
             myps.GetComponent<Transform>().SetParent(this.GetComponent<Transform>());
-            myps.GetComponent<Transform>().localPosition = new Vector3(0, -1, 0);
+            myps.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
         }
     }
 
@@ -149,6 +154,7 @@ public class CatchFireFlame : MonoBehaviour
             Destroy(myps.gameObject);
         }
     }
+
     bool CheckGuiRaycastObjects()
     {
         PointerEventData eventData = new PointerEventData(eventsystem);

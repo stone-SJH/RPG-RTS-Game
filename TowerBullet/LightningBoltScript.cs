@@ -87,7 +87,8 @@ namespace DigitalRuby.LightningBolt
         [HideInInspector]
         [System.NonSerialized]
         public System.Random RandomGenerator = new System.Random();
-		public float height;
+        public float height;
+        private float Damage;
 
         private LineRenderer lineRenderer;
         private List<KeyValuePair<Vector3, Vector3>> segments = new List<KeyValuePair<Vector3, Vector3>>();
@@ -96,6 +97,9 @@ namespace DigitalRuby.LightningBolt
         private Vector2[] offsets;
         private int animationOffsetIndex;
         private int animationPingPongDirection = 1;
+
+        private Troop troop;
+        private Hero hero;
 
         private GameObject target;
 
@@ -288,12 +292,15 @@ namespace DigitalRuby.LightningBolt
         }
         private void Start()
         {
+            Damage = this.transform.parent.transform.GetComponent<teslaBullet>().Damage;
             lineRenderer = GetComponent<LineRenderer>();
             lineRenderer.SetVertexCount(0);
             UpdateFromMaterialChange();
+
             findTarget();
-			//Debug.Log (height);
-			makeDamage ();
+
+            //Debug.Log(height);
+            makeDamage();
         }
 
         private void Update()
@@ -357,32 +364,35 @@ namespace DigitalRuby.LightningBolt
                 }
             }
         }
-
-        void findTarget()
-        {
-            /*foreach (GameObject obj in makeSoldier.soldiers)
-            {
-                if (obj.name == this.transform.parent.GetComponent<Text>().text)
-                {
-                    target = obj;
-                    break;
-                }
-            }*/
-            //StartObject = this.transform.parent.gameObject;
-			target = this.transform.parent.transform.GetComponent<teslaBullet> ().target;
-			height = target.transform.GetComponent<CharacterController> ().height * target.transform.lossyScale.y * 0.75f;
-            StartPosition = new Vector3(this.transform.position.x, this.transform.position.y+20, this.transform.position.z);
-            //EndObject = target.gameObject;
-			EndPosition = new Vector3 (target.transform.position.x, target.transform.position.y + height, target.transform.position.z);
-        }
-		void makeDamage()
+		void findTarget()
 		{
-			Troop troop = target.transform.GetComponent<Troop> ();
-			Hero hero = target.transform.GetComponent<Hero> ();
-			if (troop != null)
-				troop.HP -= 30;
-			else if (hero != null)
-				hero.HP -= 30;
+			
+			//StartObject = this.transform.parent.gameObject;
+			target = this.transform.parent.transform.GetComponent<teslaBullet>().target;
+			troop = target.transform.GetComponent<Troop>();
+			hero = target.transform.GetComponent<Hero>();
+			height = target.transform.GetComponent<CharacterController>().height * target.transform.lossyScale.y * 0.6f;
+			StartPosition = new Vector3(this.transform.position.x, this.transform.position.y + 30, this.transform.position.z);
+			EndObject = target.gameObject;
+			//EndPosition = new Vector3(target.transform.position.x, target.transform.position.y + height, target.transform.position.z);
+			float r = target.transform.GetComponent<CharacterController>().radius;
+			float scale = target.transform.lossyScale.y;
+			Vector3 s1 = new Vector3(StartPosition.x, EndObject.transform.position.y, StartPosition.z);
+			Vector3 v1 = EndObject.transform.position - StartPosition;
+			Vector3 v2 = EndObject.transform.position - s1;
+			float cosx = (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z) / (Mathf.Sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) * Mathf.Sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z));
+			float tanx = Mathf.Sqrt(1 - cosx * cosx) / cosx;
+			float dy = r * tanx;
+			float dx = (r * v2.x) / (Mathf.Sqrt(v2.x * v2.x + v2.z * v2.z));
+			float dz= (r * v2.z) / (Mathf.Sqrt(v2.x * v2.x + v2.z * v2.z));
+			EndPosition = new Vector3(-1 * scale * dx, (target.transform.GetComponent<CharacterController>().height * 0.6f + dy) * scale, -1 * scale * dz);
 		}
+        void makeDamage()
+        {
+            if (troop != null)
+                troop.HP -= Damage;
+            else if (hero != null)
+                hero.HP -= Damage;
+        }
     }
 }

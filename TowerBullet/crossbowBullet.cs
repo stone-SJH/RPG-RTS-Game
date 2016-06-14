@@ -12,14 +12,19 @@ public class crossbowBullet : MonoBehaviour {
     private int rotationSpeed=10;
     private Vector3 tt_p;
     private bool isFire;
-    public float CD;
+    public float CD=0.2f;
     private float incd;
+    public float Damage = 2f;
 
-	// Use this for initialization
-	void Start () {
+    private Troop troop;
+    private Hero hero;
+
+
+    // Use this for initialization
+    void Start () {
         isFire = false;
         incd = 0;
-        CD = 0.2f;
+        //CD = 0.2f;
 	}
 	
 	// Update is called once per frame
@@ -47,7 +52,7 @@ public class crossbowBullet : MonoBehaviour {
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-        Debug.Log("fire");
+        //Debug.Log("fire");
         targets.Add(col.gameObject);
         if (isFire == false)
         {
@@ -110,7 +115,7 @@ public class crossbowBullet : MonoBehaviour {
 
     void beginFire()
     {
-        Debug.Log("fff");
+        ///Debug.Log("fff");
         this.transform.GetComponent<Animator>().SetBool("shoot", true);
         isFire = true;
     }
@@ -125,7 +130,24 @@ public class crossbowBullet : MonoBehaviour {
     {
         if (incd == 0)
         {
-            makeBullet();
+            if (ifTargetisDead())
+            {
+                if (targets.Count == 1)
+                {
+                    targets.Remove(target);
+                    endFire();
+                }
+                else
+                {
+                    targets.Remove(target);
+                    target = (GameObject)targets[0];
+                    makeBullet();
+                }
+            }
+            else
+            {
+                makeBullet();
+            }
             incd += Time.deltaTime;
         }
         else if (incd >= CD)
@@ -137,4 +159,17 @@ public class crossbowBullet : MonoBehaviour {
             incd += Time.deltaTime;
         }
     }
+
+    bool ifTargetisDead()
+	{
+		troop = target.transform.GetComponent<Troop> ();
+		hero = target.transform.GetComponent<Hero> ();
+		if (/*(hero != null && hero.isDead()) ||*/ (troop != null && troop.isDead))                      //<<<<<<<<<---------------------------------------
+		{
+			
+			return true;
+		}
+		return false;
+	}
+
 }

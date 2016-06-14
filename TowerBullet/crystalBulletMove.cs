@@ -13,6 +13,11 @@ public class crystalBulletMove : MonoBehaviour
     public GameObject boom;
     private GameObject myboom;
 
+    private float Damage;
+	private Hero hero;
+	private Troop troop;
+	private float height;
+
     // Use this for initialization
     void Start()
     {
@@ -27,14 +32,8 @@ public class crystalBulletMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //this.transform.position=new Vector3(this.transform.position)
-        this.transform.rotation = Quaternion.LookRotation(target.transform.position - this.transform.position);
-        //this.transform.Rotate(new Vector3(90, 0, 0));
-
+		this.transform.rotation = Quaternion.LookRotation(new Vector3(target.transform.position.x, target.transform.position.y + height, target.transform.position.z) - this.transform.position);
         this.transform.Translate(Vector3.forward * Time.deltaTime * speed);
-
-
-
     }
 
     void OnTriggerEnter(Collider col)
@@ -44,6 +43,7 @@ public class crystalBulletMove : MonoBehaviour
         {
             myboom = Instantiate(boom);
             myboom.transform.position = this.transform.position;
+            myboom.transform.GetComponent<crystalBulletBoom>().Damage = Damage;
             destroyself();
         }
     }
@@ -55,16 +55,11 @@ public class crystalBulletMove : MonoBehaviour
 
     void findTarget()
     {
-        /*foreach (GameObject obj in makeSoldier.soldiers)
-        {
-            if (obj.name == this.transform.parent.GetComponent<Text>().text)
-            {
-                target = obj;
-                break;
-            }
-        }*/
         target = this.transform.parent.transform.GetComponent<crystalBullet>().target;
-
+        Damage = this.transform.parent.transform.GetComponent<crystalBullet>().Damage;
+		troop = target.transform.GetComponent<Troop>();
+		hero = target.transform.GetComponent<Hero>();
+		height = target.transform.GetComponent<CharacterController>().height * target.transform.lossyScale.y * 0.1f;
     }
 
     

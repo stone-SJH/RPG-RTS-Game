@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class crystalBulletBoom : MonoBehaviour {
+public class mortarBoom : MonoBehaviour {
+
+    public float Damage;
     private ArrayList targets = new ArrayList();
     private GameObject target;
-    public float Damage;
-	public float slowRatio = 0.5f;
-	public float slowLastTime = 5f;
+
     private Troop troop;
     private Hero hero;
 
@@ -15,9 +15,9 @@ public class crystalBulletBoom : MonoBehaviour {
         Destroy(this.gameObject, 2);
     }
 
-	// Use this for initialization
-	void Start () {
-	
+    // Use this for initialization
+    void Start () {
+	    
 	}
 	
 	// Update is called once per frame
@@ -39,19 +39,13 @@ public class crystalBulletBoom : MonoBehaviour {
     {
         if (troop != null)
         {
-            if (!troop.isDead){
+            if (!troop.isDead)
                 troop.HP -= Damage;
-				troop.GetSlowed(slowRatio, slowLastTime);
-			}
         }
         else if (hero != null)
         {
-            if (hero.HP >= 0f){
+            if (hero.HP >= 0)
                 hero.HP -= Damage;
-				hero.GetSlowed(slowRatio, slowLastTime);
-			}
         }
-        
     }
-
 }

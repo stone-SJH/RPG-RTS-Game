@@ -39,7 +39,7 @@ public class Skill3{
 	public bool activited = false;
 	public int level = 0;
 	public int maxLevel = 3;
-	public float ratio = 3f;
+	public float ratio = 2f;
 
 	public float AddSpeed(){
 		return level * ratio;
@@ -217,8 +217,8 @@ public class Hero : MonoBehaviour {
 	public float MaxSpeed = 60f;
 	//升级加成
 	public float HPGap = 50f;
-	public float speedGap = 1f;
-	public float attackGap = 5f;
+	public float speedGap = 0.1f;
+	public float attackGap = 1f;
 	//当前值
 	public float HP;
 	public float speed;

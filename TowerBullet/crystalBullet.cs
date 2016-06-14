@@ -12,8 +12,13 @@ public class crystalBullet : MonoBehaviour {
     private int rotationSpeed = 10;
     private Vector3 tt_p;
     private bool isFire;
-    public float CD;
+    public float CD=2f;
     private float incd;
+    public float Damage = 30f;
+
+    private Troop troop;
+    private Hero hero;
+
 
     // Use this for initialization
     void Start()
@@ -32,6 +37,7 @@ public class crystalBullet : MonoBehaviour {
             toTarget();
             Fire();
         }
+        
     }
 
     void makeBullet()
@@ -48,7 +54,7 @@ public class crystalBullet : MonoBehaviour {
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-        Debug.Log("fire");
+        //Debug.Log("fire");
         targets.Add(col.gameObject);
         if (isFire == false)
         {
@@ -112,7 +118,7 @@ public class crystalBullet : MonoBehaviour {
 
     void beginFire()
     {
-        Debug.Log("fff");
+        //Debug.Log("fff");
         this.transform.GetComponent<Animator>().SetBool("shoot", true);
         isFire = true;
     }
@@ -127,7 +133,24 @@ public class crystalBullet : MonoBehaviour {
     {
         if (incd == 0)
         {
-            makeBullet();
+            if (ifTargetisDead())
+            {
+                if (targets.Count == 1)
+                {
+                    targets.Remove(target);
+                    endFire();
+                }
+                else
+                {
+                    targets.Remove(target);
+                    target = (GameObject)targets[0];
+                    makeBullet();
+                }
+            }
+            else
+            {
+                makeBullet();
+            }
             incd += Time.deltaTime;
         }
         else if (incd >= CD)
@@ -138,6 +161,18 @@ public class crystalBullet : MonoBehaviour {
         {
             incd += Time.deltaTime;
         }
+
     }
 
+    bool ifTargetisDead()
+	{
+		troop = target.transform.GetComponent<Troop> ();
+		hero = target.transform.GetComponent<Hero> ();
+		if (/*(hero != null && hero.isDead()) ||*/ (troop != null && troop.isDead))
+		{
+			
+			return true;
+		}
+		return false;
+	}
 }

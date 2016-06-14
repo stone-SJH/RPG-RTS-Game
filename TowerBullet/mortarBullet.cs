@@ -2,35 +2,33 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class teslaBullet : MonoBehaviour {
+public class mortarBullet : MonoBehaviour {
 
     public GameObject bullet;
     private GameObject myBullet;
-    public GameObject bullet1;
-    private GameObject myBullet1;
+
+    public GameObject fire;
+    private GameObject myfire;
+
     private ArrayList targets = new ArrayList();
     public GameObject target;
     private int targetindex;
-    private int rotationSpeed = 10;
+    private int rotationSpeed = 1000;
     private Vector3 tt_p;
     private bool isFire;
-    public float CD=0.3f;
+    public float CD=2f;
     private float incd;
+    public float Damage = 30f;
 
-    public float Damage=30f;
-
-    private Troop troop;                            //<<<<<<<<<---------------------------------------
+    private Troop troop;
     private Hero hero;
-
-
 
     // Use this for initialization
     void Start()
     {
-
         isFire = false;
         incd = 0;
-
+        //CD = 0.2f;
     }
 
     // Update is called once per frame
@@ -39,6 +37,7 @@ public class teslaBullet : MonoBehaviour {
         //toTarget();
         if (isFire)
         {
+
             toTarget();
             Fire();
         }
@@ -47,15 +46,16 @@ public class teslaBullet : MonoBehaviour {
     void makeBullet()
     {
         myBullet = Instantiate(bullet);
-        myBullet.GetComponent<Transform>().SetParent(this.GetComponent<Transform>());
-        myBullet.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
-        myBullet.GetComponent<Transform>().rotation = Quaternion.LookRotation(tt_p - myBullet.transform.position);
-        myBullet.GetComponent<Transform>().Rotate(new Vector3(90, 0, 0));
+        myBullet.GetComponent<Transform>().SetParent(this.GetComponent<Transform>().FindChild("bulletparent").transform);
+        myBullet.GetComponent<Transform>().localPosition = new Vector3(0, 1, 0.5f);
 
-        /*myBullet1 = Instantiate(bullet1);
-        myBullet1.GetComponent<Transform>().SetParent(this.GetComponent<Transform>());
-        myBullet1.GetComponent<Transform>().localPosition = new Vector3(0, 0, 0);
-        */
+        myfire = Instantiate(fire);
+        myfire.GetComponent<Transform>().SetParent(this.transform);
+        myfire.GetComponent<Transform>().localPosition = new Vector3(0, 1, 0.5f);
+
+        //myBullet.transform.position = this.transform.position;
+        //myBullet.GetComponent<Transform>().rotation = Quaternion.LookRotation(tt_p - myBullet.transform.position);
+        //myBullet.GetComponent<Transform>().Rotate(new Vector3(90, 0, 0));
 
         //myBullet.GetComponent<Transform>().Rotate(new Vector3(this.GetComponent<Transform>().FindChild("Base").GetComponent<Transform>().FindChild("Turret").GetComponent<Transform>().localEulerAngles.x, this.GetComponent<Transform>().localEulerAngles.y, 0.0f));
     }
@@ -63,7 +63,7 @@ public class teslaBullet : MonoBehaviour {
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-        //Debug.Log("fire_tesla");
+        //Debug.Log("fire");
         targets.Add(col.gameObject);
         if (isFire == false)
         {
@@ -77,9 +77,7 @@ public class teslaBullet : MonoBehaviour {
     void OnTriggerExit(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-		if (targets.Count == 0)
-			return;
-        if (targets.Count == 1 && col.gameObject.name == target.gameObject.name)
+        if (targets.Count == 1)
         {
             targets.Remove(col.gameObject);
             endFire();
@@ -116,9 +114,9 @@ public class teslaBullet : MonoBehaviour {
         Vector3 t_position_1 = t_position;
         Vector3 c_position_1 = c_position;
         t_position.y = c_position.y;
-        //this.transform.rotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(t_position - c_position), rotationSpeed * Time.deltaTime);
+        this.transform.localRotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(t_position - c_position), rotationSpeed * Time.deltaTime);
         //this.transform.FindChild("Base").transform.FindChild("Turret").rotation =
-        //Quaternion.Slerp(this.transform.FindChild("Base").transform.FindChild("Turret").rotation, Quaternion.LookRotation(t_position_1 - c_position_1), rotationSpeed * Time.deltaTime);
+            //Quaternion.Slerp(this.transform.FindChild("Base").transform.FindChild("Turret").rotation, Quaternion.LookRotation(t_position_1 - c_position_1), rotationSpeed * Time.deltaTime);
 
     }
 
@@ -129,14 +127,14 @@ public class teslaBullet : MonoBehaviour {
 
     void beginFire()
     {
-        //Debug.Log("fff");
-        //this.transform.GetComponent<Animator>().SetBool("shoot", true);
+        ///Debug.Log("fff");
+        this.transform.GetComponent<Animator>().SetBool("shoot", true);
         isFire = true;
     }
 
     void endFire()
     {
-        //this.transform.GetComponent<Animator>().SetBool("shoot", false);
+        this.transform.GetComponent<Animator>().SetBool("shoot", false);
         isFire = false;
     }
 
@@ -175,15 +173,15 @@ public class teslaBullet : MonoBehaviour {
     }
 
     bool ifTargetisDead()
-    {
+	{
 		troop = target.transform.GetComponent<Troop> ();
 		hero = target.transform.GetComponent<Hero> ();
-		if (/*(hero != null && hero.isDead()) ||*/(troop != null && troop.isDead))
-        {
-            
-            return true;
-        }
-        return false;
-    }
+		if (/*(hero != null && hero.isDead()) ||*/ (troop != null && troop.isDead))
+		{
+			
+			return true;
+		}
+		return false;
+	}
 
 }
