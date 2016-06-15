@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Troop : MonoBehaviour {
 	public string heroName = "Hero";
+	public float deadTime = 1f;
 	//造价
 	public int crystalCost = 200;
 	//当前值
@@ -130,6 +131,7 @@ public class Troop : MonoBehaviour {
 		if (HP <= 0 && !isDead) {
 			animation.CrossFade (deadAnimation.name);
 			isDead = true;
+			Invoke ("SinkAndDestroy", deadTime);
 		}
 	}
 

@@ -201,9 +201,16 @@ public class Skill9{
 }
 
 
+
 public class Hero : MonoBehaviour {
+	//资源
+	public int crystals = 1000;
 
 	//public GameObject hero;
+	public ItemManager im;
+	public Item[] column = new Item[6];
+	public ArrayList stash = new ArrayList (); 
+
 	public string saveFileNamePrefix = "save/";
 	public string saveFileNameSuffix = ".txt";
 	public string heroName = "Stone";
@@ -314,6 +321,44 @@ public class Hero : MonoBehaviour {
 			lineNo++;
 		}
 		sr.Close ();
+		/*
+		 *从文件中读入背包物品信息 
+		 */
+		if (!im.CacheDone)
+			im.BuildCache ();
+		fileName = saveFileNamePrefix + "_Stash_" + heroName + saveFileNameSuffix;
+		sr = new StreamReader (fileName);
+		sLine = "";
+		int columnNo = 0;
+		while ((sLine = sr.ReadLine()) != null) {
+			sLine.Trim ();
+			if (sLine [0] == '#')
+				continue;
+			string[] splitArray = sLine.Split (new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
+			Item item = new Item();
+			item.itemID = int.Parse(splitArray[0]);
+			item.itemNumber = int.Parse(splitArray[1]);
+			ItemCache ic = new ItemCache();
+			ic = im.FindInCache(item.itemID);
+			string attributes = ic.Attributes;
+			string[] splitArray2 = attributes.Split (new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
+			if (int.Parse(splitArray2[1]) == 0)
+				item.canUse = false;
+			else
+				item.canUse = true;
+			
+			if (int.Parse(splitArray[2]) == 1){
+				if (columnNo <= 5){
+					column[columnNo] = item;
+					columnNo++;
+				}
+				else
+					stash.Add(item);
+			}
+			else
+				stash.Add(item);
+		}
+		sr.Close ();
 	}
 
 	void Init(){
@@ -336,10 +381,10 @@ public class Hero : MonoBehaviour {
 		ordSpeed += addSpeed;
 	}
 
-	void Sync(){
+	void SyncHero(){
 		//写文件
 		//在英雄信息更改时调用
-		Debug.Log("sync");
+		//Debug.Log("sync");
 		string fileName = saveFileNamePrefix + "_Player_" + heroName + saveFileNameSuffix;
 		FileStream fs = new FileStream (fileName, FileMode.Truncate, FileAccess.Write);
 		StreamWriter sw = new StreamWriter (fs);
@@ -366,6 +411,94 @@ public class Hero : MonoBehaviour {
 		fs.Close ();
 	}
 
+	void SyncItem(){
+		string fileName = saveFileNamePrefix + "_Stash_" + heroName + saveFileNameSuffix;
+		FileStream fs = new FileStream (fileName, FileMode.Truncate, FileAccess.Write);
+		StreamWriter sw = new StreamWriter (fs);
+		for (int i = 0; i < 6; i++) {
+			if (column [i] != null) {
+				string inf = "";
+				inf += "_" + column [i].itemID + "_" + column [i].itemNumber + "_1\n";
+				sw.Write(inf);
+			}
+		}
+		foreach (Item item in stash) {
+			string inf = "";
+			inf += "_" + item.itemID + "_" + item.itemNumber + "_0\n";
+			sw.Write(inf);
+		}
+		sw.Flush();
+		sw.Close();
+		fs.Close();
+	}
+
+	void TestChinese(){
+		FileStream fs = new FileStream ("2.txt", FileMode.Create);
+		StreamReader sr = new StreamReader ("1.txt", Encoding.GetEncoding("gb2312"));
+		string sine = "";
+		sine = sr.ReadLine ();
+		Debug.Log (sine);
+		StreamWriter sw = new StreamWriter (fs, Encoding.GetEncoding("gb2312"));
+		sw.Write (sine);
+		sw.Flush ();
+		sr.Close ();
+		sw.Close ();
+		fs.Close ();
+	}
+
+	void EquipmentCheck(Item item){
+		if (item.canUse)
+			return;
+		string attributes = im.FindInCache (item.itemID).Attributes;
+		string[] splitArray1 = attributes.Split (new char[1]{';'}, StringSplitOptions.RemoveEmptyEntries);
+		string[] splitArray2 = splitArray1[2].Split (new char[1]{'_'}, StringSplitOptions.RemoveEmptyEntries);
+		int _level = int.Parse (splitArray2 [0]);
+		int _HP = int.Parse (splitArray2[1]);
+		int _speed = int.Parse(splitArray2[2]);
+		int _attack = int.Parse (splitArray2 [3]);
+		if (_HP != 0) {
+			float _ratio = HP / maxHP;
+			maxHP += _HP;
+			HP = maxHP * _ratio;
+		}
+		if (_attack != 0) {
+			attack += _attack;
+			ordAttack += _attack;
+		}
+		if (_speed != 0)
+			ordSpeed += _speed;
+	}
+
+	void EquipmentRemoveCheck(Item item){
+		if (item.canUse)
+			return;
+		string attributes = im.FindInCache (item.itemID).Attributes;
+		string[] splitArray1 = attributes.Split (new char[1]{';'}, StringSplitOptions.RemoveEmptyEntries);
+		string[] splitArray2 = splitArray1[2].Split (new char[1]{'_'}, StringSplitOptions.RemoveEmptyEntries);
+		int _level = int.Parse (splitArray2 [0]);
+		int _HP = int.Parse (splitArray2[1]);
+		int _speed = int.Parse(splitArray2[2]);
+		int _attack = int.Parse (splitArray2 [3]);
+		if (_HP != 0) {
+			float _ratio = HP / maxHP;
+			maxHP -= _HP;
+			HP = maxHP * _ratio;
+		}
+		if (_attack != 0) {
+			attack -= _attack;
+			ordAttack -= _attack;
+		}
+		if (_speed != 0)
+			ordSpeed -= _speed;
+	}
+
+	void ColumnEquipmentCheck(){
+		for (int i = 0; i < 6; i++) {
+			if (column [i] != null)
+				EquipmentCheck (column [i]);
+		}
+	}
+
 	// Use this for initialization
 	void Start () {
 		Access ();
@@ -374,6 +507,7 @@ public class Hero : MonoBehaviour {
 		HP = maxHP;
 		speed = ordSpeed;
 		attack = ordAttack;
+		ColumnEquipmentCheck ();
 	}
 
 	void HeroLevelUpCheck(){
@@ -387,7 +521,7 @@ public class Hero : MonoBehaviour {
 			HP = maxHP;
 			attack = ordAttack;
 			speed = ordSpeed;
-			Sync();
+			SyncHero();
 		}
 	}
 
@@ -469,7 +603,6 @@ public class Hero : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
-		exp += 100f * Time.deltaTime;
 		SlowStateCheck ();
 		HeroLevelUpCheck ();
 		SkillActivateCheck ();
@@ -483,7 +616,7 @@ public class Hero : MonoBehaviour {
 			skillPoint--;
 			skill1.level++;
 			maxHP += skill1.AddHp ();
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill2LevelUp(){
@@ -492,7 +625,7 @@ public class Hero : MonoBehaviour {
 			skillPoint--;
 			skill2.level++;
 			ordAttack += skill2.AddAttack ();
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill3LevelUp(){
@@ -501,7 +634,7 @@ public class Hero : MonoBehaviour {
 			skillPoint--;
 			skill3.level++;
 			ordSpeed += skill3.AddSpeed ();
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill4LevelUp(){
@@ -510,7 +643,7 @@ public class Hero : MonoBehaviour {
 			skill4.level++;
 			addHP = skill4.getAddHP ();
 			addHPRadius = skill4.getRadius ();
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill5LevelUp(){
@@ -519,35 +652,35 @@ public class Hero : MonoBehaviour {
 			skill5.level++;
 			addSpeed = skill5.getAddSpeed ();
 			addSpeedRadius = skill5.getRadius ();
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill6LevelUp(){
 		if (skillPoint > 0 && skill6.activited && skill6.level < skill6.maxLevel) {
 			skillPoint--;
 			skill6.level++;
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill7LevelUp(){
 		if (skillPoint > 0 && skill7.activited && skill7.level < skill7.maxLevel) {
 			skillPoint--;
 			skill7.level++;
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill8LevelUp(){
 		if (skillPoint > 0 && skill8.activited && skill8.level < skill8.maxLevel) {
 			skillPoint--;
 			skill8.level++;
-			Sync();
+			SyncHero();
 		}
 	}
 	public void Skill9LevelUp(){
 		if (skillPoint > 0 && skill9.activited && skill9.level < skill9.maxLevel) {
 			skillPoint--;
 			skill9.level++;
-			Sync();
+			SyncHero();
 		}
 	}
 
@@ -638,5 +771,81 @@ public class Hero : MonoBehaviour {
 		slowRatio = ratio;
 		slowLastTime = lastTime;
 		inSlowLastTime = 0f;
+	}
+
+	public bool AddToColumn(Item item, int ColumnNo){
+		if (ColumnNo < 6 && column [ColumnNo] == null) {
+			column [ColumnNo] = item;
+			stash.Remove(item);
+			EquipmentCheck(item);
+			return true;
+		} else
+			return false;
+	}
+
+	public bool Transfer(Item item, int ColumnNo){
+		if (ColumnNo < 6 && column [ColumnNo] != null) {
+			stash.Add(column[ColumnNo]);
+			EquipmentRemoveCheck(column[ColumnNo]);
+			column [ColumnNo] = item;
+			stash.Remove(item);
+			EquipmentCheck(item);
+			return true;
+		} else
+			return false;
+	}
+
+	public bool RemoveFromColumn(Item item, int ColumnNo){
+		if (ColumnNo < 6 && column [ColumnNo] != null) {
+			stash.Add(column[ColumnNo]);
+			EquipmentRemoveCheck(column[ColumnNo]);
+			column [ColumnNo] = null;
+			return true;
+		} else
+			return false;
+	}
+
+	public Item FindItemInStash(int ID){
+		foreach (Item item in stash) {
+			if (item.itemID == ID)
+				return item;
+		}
+		return null;
+	}
+
+	public void AddItem(int ID, int count){
+		Item item = FindItemInStash (ID);
+		if (item != null) {
+			item.itemNumber += count;
+		}
+		else{
+			item = new Item ();
+			item.itemID = ID;
+			item.itemNumber = count;
+			ItemCache ic = new ItemCache();
+			ic = im.FindInCache(item.itemID);
+			string attributes = ic.Attributes;
+			string[] splitArray = attributes.Split (new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
+			if (int.Parse(splitArray[1]) == 0)
+				item.canUse = false;
+			else
+				item.canUse = true;
+			stash.Add (item);
+		}
+		SyncItem ();
+	}
+
+	public void SellItem(Item item, int sellCount){
+		//目前设定只能卖stash里面的物品
+		if (item.itemNumber >= sellCount) {
+			string attributes = im.FindInCache (item.itemID).Attributes;
+			string[] splitArray1 = attributes.Split (new char[1]{';'}, StringSplitOptions.RemoveEmptyEntries);
+			string[] splitArray2 = splitArray1 [2].Split (new char[1]{'_'}, StringSplitOptions.RemoveEmptyEntries);
+			int _cost = int.Parse (splitArray2 [4]);
+			item.itemNumber -= sellCount;
+			if (item.itemNumber == 0)
+				stash.Remove(item);
+		}
+		SyncItem ();
 	}
 }
