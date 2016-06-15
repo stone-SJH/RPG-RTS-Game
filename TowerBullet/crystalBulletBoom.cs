@@ -39,14 +39,14 @@ public class crystalBulletBoom : MonoBehaviour {
     {
         if (troop != null)
         {
-            if (!troop.isDead){
+			if (!troop.isDead && !troop.isOPState){
                 troop.HP -= Damage;
 				troop.GetSlowed(slowRatio, slowLastTime);
 			}
         }
         else if (hero != null)
         {
-            if (hero.HP >= 0f){
+			if (hero.HP >= 0f && !hero.isOP && !hero.isOPState){
                 hero.HP -= Damage;
 				hero.GetSlowed(slowRatio, slowLastTime);
 			}

@@ -5,202 +5,22 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-//技能表
-/*
- * 第一层 被动加生命（SKILL1）3/3
- * 第二层 被动加攻击力（SKILL2）3/3   被动加移速（SKILL3）3/3
- * 第三层 加生命光环（SKILL4）3/3     群体治疗（SKILL6）3/3
- * 		 加移速光环（SKILL5）3/3     保护罩（SKILL7）3/3  
- * 第四层 爆发（SKILL8）5/5          暴风雪（SKILL9）5/5
-*/
-public class Skill1{
-	public bool activited = true;//是否能点
-	public int level = 0;
-	public int maxLevel = 3;
-	public float ratio = 150f;
+public class ItemState{
+	public int ID;
 
-	public float AddHp(){
-		return level * ratio;
-	}
+	public float extraHP;
+	public float extraSpeed;
+	public float extraAttack;
+	public bool OP;
+
+	public bool inCD;
+	public float CD;
+	public float inCDTime;
+
+	public bool inBUFF;
+	public float LastTime;
+	public float inLastTime;
 }
-
-public class Skill2{
-	public bool activited = false;
-	public int level = 0;
-	public int maxLevel = 3;
-	public float ratio = 25f;
-
-	public float AddAttack(){
-		return level * ratio;
-	}
-}
-
-public class Skill3{
-	public bool activited = false;
-	public int level = 0;
-	public int maxLevel = 3;
-	public float ratio = 2f;
-
-	public float AddSpeed(){
-		return level * ratio;
-	}
-}
-
-public class Skill4{
-	public bool activited = false;
-	public int level = 0;
-	public int maxLevel = 3;
-	public float initialRadius = 20f;
-	public float radiusRatio = 5f;
-	public float HPRatio = 60f;
-
-	public float getRadius(){
-		if (level > 0)
-			return initialRadius + level * radiusRatio;
-		else
-			return 0f;
-	}
-	public float getAddHP(){
-		return level * HPRatio;
-	}
-}
-
-public class Skill5{
-	public bool activited = false;
-	public int level = 0;
-	public int maxLevel = 3;
-	public float initialRadius = 20f;
-	public float radiusRatio = 5f;
-	public float speedRatio = 1.5f;
-
-	public float getRadius(){
-		if (level > 0)
-			return initialRadius + level * radiusRatio;
-		else
-			return 0f;
-	}
-	public float getAddSpeed(){
-		return level * speedRatio;
-	}
-}
-
-public class Skill6{
-	public bool activited = false;
-
-	public int level = 0;
-	public int maxLevel = 3;
-	public float initialRadius = 22f;
-	public float radiusRatio = 8f;
-	public float initialHeal = 200f;
-	public float healRatio = 40f;
-
-	public bool available = true;
-	public float coolDown = 30f;
-	public float inCDTime = 0f;
-
-	public float getRadius(){
-		if (level > 0)
-			return initialRadius + level * radiusRatio;
-		else
-			return 0f;
-	}
-
-	public float getHeal(){
-		if (level > 0)
-			return initialHeal + level * healRatio;
-		else
-			return 0f;
-	}
-
-
-}
-
-public class Skill7{
-	public bool activited = false;
-
-	public int level = 0;
-	public int maxLevel = 3;
-	public float initialRadius = 22f;
-	public float radiusRatio = 8f;
-	public float initialLastTime = 3f;
-	public float lastTimeRatio = 1f;
-	public float inLastTime = 0f;
-
-	public bool available = true;
-	public float coolDown = 20f;
-	public float inCDTime = 0f;
-	
-	public float getRadius(){
-		if (level > 0)
-			return initialRadius + level * radiusRatio;
-		else
-			return 0f;
-	}
-	
-	public float getLastTime(){
-		if (level > 0)
-			return initialLastTime + level * lastTimeRatio;
-		else
-			return 0f;
-	}
-}
-
-public class Skill8{
-	public bool activited = false;
-
-	public int level = 0;
-	public int maxLevel = 5;
-	public float initialLastTime = 5f;
-	public float lastTimeRatio = 1f;
-	public float inLastTime = 0f;
-
-	public bool available = true;
-	public float coolDown = 10f;
-	public float inCDTime = 0f;
-
-	public float getLastTime(){
-		if (level > 0)
-			return initialLastTime + level * lastTimeRatio;
-		else 
-			return 0f;
-	}
-}
-
-public class Skill9{
-	public bool activited = false;
-
-	public int level = 0;
-	public int maxLevel = 5;
-	public float initialRadius = 7.8f;
-	public float radiusRatio = 2.2f;
-	public float initialLastTime = 15f;
-	public float lastTimeRatio = 5f;
-	public float slowRatio = 0.5f;
-	public float inLastTime = 0f;
-	
-	public bool available = true;
-	public float coolDown = 30f;
-	public float inCDTime = 0f;
-	
-	public float getRadius(){
-		if (level > 0)
-			return initialRadius + level * radiusRatio;
-		else
-			return 0f;
-	}
-	
-	public float getLastTime(){
-		if (level > 0)
-			return initialLastTime + level * lastTimeRatio;
-		else
-			return 0f;
-	}
-	public float getSlowRatio(){
-		return slowRatio;
-	}
-}
-
-
 
 public class Hero : MonoBehaviour {
 	//资源
@@ -210,6 +30,8 @@ public class Hero : MonoBehaviour {
 	public ItemManager im;
 	public Item[] column = new Item[6];
 	public ArrayList stash = new ArrayList (); 
+
+	public ArrayList itemStates = new ArrayList ();
 
 	public string saveFileNamePrefix = "save/";
 	public string saveFileNameSuffix = ".txt";
@@ -271,6 +93,7 @@ public class Hero : MonoBehaviour {
 
 	//use in this class
 	public bool isBursted = false;
+	public bool isOP = false;
 
 	public bool isSlowState = false;
 	public float slowRatio = 1f;
@@ -601,13 +424,51 @@ public class Hero : MonoBehaviour {
 		if (isBursted)
 			speed = MaxSpeed;
 	}
+
+	void ItemStatesCheck(){
+		ArrayList cleaner = new ArrayList ();
+		foreach (ItemState ist in itemStates) {
+			if (ist.OP)
+				isOP = true;
+			else
+				isOP = false;
+			if (ist.inBUFF)
+				ist.inLastTime += Time.deltaTime;
+			if (ist.inCD)
+				ist.inCDTime += Time.deltaTime;
+			if (ist.inBUFF && ist.inLastTime >= ist.LastTime){
+				float ratio = HP / maxHP;
+				maxHP -= ist.extraHP;
+				HP = ratio * maxHP;
+				ordSpeed -= ist.extraSpeed;
+				ordAttack -= ist.extraAttack;
+				ist.inBUFF = false;
+				ist.OP = false;
+			}
+			if (ist.inCD && ist.inCDTime >= ist.CD){
+				ist.inCD = false;
+			}
+			if (!ist.inCD && !ist.inBUFF)
+				cleaner.Add(ist);
+		}
+		foreach (ItemState ist in cleaner)
+			itemStates.Remove (ist);
+	}
+
 	// Update is called once per frame
 	void Update () {
+		/* for test
+		int i = FindItemInColumn (12001);
+		if (i != -1)
+			UseItem (column [i], i);
+		*/
+
 		SlowStateCheck ();
 		HeroLevelUpCheck ();
 		SkillActivateCheck ();
 		SkillCDCheck ();
 		SpeedDetermine ();
+		ItemStatesCheck ();
 	}
 
 	public void Skill1LevelUp(){
@@ -790,6 +651,39 @@ public class Hero : MonoBehaviour {
 			column [ColumnNo] = item;
 			stash.Remove(item);
 			EquipmentCheck(item);
+			ItemState ist = FindInItemStates(item.itemID);
+			if (ist != null){
+				if (ist.inCD){
+					if (!item.canUse)
+						return true;
+					string attributes = im.FindInCache (item.itemID).Attributes;
+					string[] splitArray = attributes.Split (new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
+					int type = int.Parse (splitArray [1]);
+					ItemState ist2 = new ItemState();
+					float _CD = 0f;
+					ist2.ID = item.itemID;
+					if (type == 1) {
+						_CD = float.Parse(splitArray[7]);
+					}
+					else if (type == 2){
+						int tag = int.Parse(splitArray[3]);
+						switch (tag){
+						case 0:
+							_CD = float.Parse(splitArray[7]);
+							break;
+						case 1:
+							_CD = float.Parse(splitArray[5]);
+							break;
+						default:
+							break;
+						}
+					}
+					ist2.CD = _CD;
+					ist2.inCD = true;
+					ist2.inCDTime = 0f;
+					itemStates.Add(ist2);
+				}
+			}
 			return true;
 		} else
 			return false;
@@ -811,6 +705,14 @@ public class Hero : MonoBehaviour {
 				return item;
 		}
 		return null;
+	}
+
+	public int FindItemInColumn(int ID){
+		for (int i = 0; i < 6; i++) {
+			if (column[i] != null && column [i].itemID == ID)
+				return i;
+		}
+		return -1;
 	}
 
 	public void AddItem(int ID, int count){
@@ -847,5 +749,148 @@ public class Hero : MonoBehaviour {
 				stash.Remove(item);
 		}
 		SyncItem ();
+	}
+
+	public ItemState FindInItemStates(int ID){
+		foreach (ItemState ist in itemStates) {
+			if (ist.ID == ID)
+				return ist;
+		}
+		return null;
+	}
+
+	public void UseItem(Item item, int ColumnNo){
+		if (!item.canUse)
+			return;
+		string attributes = im.FindInCache (item.itemID).Attributes;
+		string[] splitArray = attributes.Split (new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
+		int type = int.Parse (splitArray [1]);
+		if (type == 1) {
+			float _addHP = float.Parse(splitArray[3]);
+			float _extraHP = float.Parse(splitArray[4]);
+			float _extraSpeed = float.Parse(splitArray[5]);
+			float _lastTime = float.Parse(splitArray[6]);
+			float _CD = float.Parse(splitArray[7]);
+			ItemState ist = FindInItemStates(item.itemID);
+			if (ist != null){
+				if (!ist.inCD){
+					ist.inBUFF = true;
+					ist.inCD = true;
+					ist.inCDTime = 0f;
+					ist.inLastTime = 0f;
+					HP += _addHP;
+					if (HP >= maxHP)
+						HP = maxHP;
+				}
+				else
+					return;
+			}
+			else{
+				ist = new ItemState();
+				ist.ID = item.itemID;
+				ist.inBUFF = true;
+				ist.inCD = true;
+				ist.inCDTime = 0f;
+				ist.inLastTime = 0f;
+				ist.LastTime = _lastTime;
+				ist.CD = _CD;
+				ist.extraHP = _extraHP;
+				ist.extraSpeed = _extraSpeed;
+				float ratio = HP / maxHP;
+				maxHP += ist.extraHP;
+				HP = ratio * maxHP;
+				ordSpeed += ist.extraSpeed;
+				HP += _addHP;
+				if (HP >= maxHP)
+					HP = maxHP;
+				itemStates.Add(ist);
+			}
+			item.itemNumber--;
+			if (item.itemNumber == 0){
+				column[ColumnNo] = null;
+			}
+			SyncItem();
+		} 
+		else if (type == 2) {
+			int tag = int.Parse(splitArray[3]);
+			switch (tag){
+			case 0:{
+				//群体治疗
+				float _heal = float.Parse(splitArray[4]);
+				float _healRadius = float.Parse(splitArray[5]);
+				float _lastTime = float.Parse(splitArray[6]);
+				float _CD = float.Parse(splitArray[7]);
+				ItemState ist = FindInItemStates(item.itemID);
+				if (ist != null){
+					if (!ist.inCD){
+						ist.inBUFF = true;
+						ist.inCD = true;
+						ist.inCDTime = 0f;
+						ist.inLastTime = 0f;
+						healCount++;
+						heal = _heal;
+						healRadius = _healRadius;
+					}
+					else
+						return;
+				}
+				else{
+					ist = new ItemState();
+					ist.ID = item.itemID;
+					ist.inBUFF = true;
+					ist.inCD = true;
+					ist.inCDTime = 0f;
+					ist.inLastTime = 0f;
+					ist.LastTime = _lastTime;
+					ist.CD = _CD;
+					healCount++;
+					heal = _heal;
+					healRadius = _healRadius;
+					itemStates.Add(ist);
+				}
+				item.itemNumber--;
+				if (item.itemNumber == 0){
+					column[ColumnNo] = null;
+				}
+				Debug.Log("use");
+				SyncItem();
+				break;
+			} 
+			case 1:{
+				//英雄无敌
+				float _lastTime = float.Parse(splitArray[4]);
+				float _CD = float.Parse(splitArray[5]);
+				ItemState ist = FindInItemStates(item.itemID);
+				if (ist != null){
+					if (!ist.inCD){
+						ist.inBUFF = true;
+						ist.inCD = true;
+						ist.inCDTime = 0f;
+						ist.inLastTime = 0f;
+					}
+					else
+						return;
+				}
+				else{
+					ist = new ItemState();
+					ist.ID = item.itemID;
+					ist.inBUFF = true;
+					ist.inCD = true;
+					ist.inCDTime = 0f;
+					ist.inLastTime = 0f;
+					ist.LastTime = _lastTime;
+					ist.CD = _CD;
+					ist.OP = true;
+					itemStates.Add(ist);
+				}
+				item.itemNumber--;
+				if (item.itemNumber == 0){
+					column[ColumnNo] = null;
+				}
+				SyncItem();
+				break;
+			}
+			}
+		}
 	}
 }

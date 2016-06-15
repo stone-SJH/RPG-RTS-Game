@@ -157,13 +157,13 @@ public class fireflameDamage : MonoBehaviour{
             troop = obj.transform.GetComponent<Troop>();
             hero = obj.transform.GetComponent<Hero>();
             if (troop != null){
-                if(!troop.isDead)
+				if(!troop.isDead && !troop.isOPState)
                     troop.HP -= Damage;
                 else
                     targets.Remove(obj);
             }
-            else if (hero != null){
-                if(hero.HP >= 0f)
+			else if (hero != null){
+				if(hero.HP >= 0f && !hero.isOP && !hero.isOPState)
                     hero.HP -= Damage;
                 else
                     targets.Remove(obj);

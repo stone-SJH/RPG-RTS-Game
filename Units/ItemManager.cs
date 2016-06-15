@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-/* 背包系统 */
+/* 物品系统 */
 public class ItemCache{
 	public int ID;
 	public string Attributes;

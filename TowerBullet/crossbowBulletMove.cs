@@ -66,9 +66,9 @@ public class crossbowBulletMove : MonoBehaviour {
 
     void makeDamage()
     {
-		if (troop != null)
+		if (troop != null && !troop.isOPState)
             troop.HP -= Damage;
-        else if (hero != null)
+        else if (hero != null && !hero.isOP && !hero.isOPState)
             hero.HP -= Damage;
     }
 

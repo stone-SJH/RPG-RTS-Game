@@ -39,12 +39,12 @@ public class mortarBoom : MonoBehaviour {
     {
         if (troop != null)
         {
-            if (!troop.isDead)
+			if (!troop.isDead && !troop.isOPState)
                 troop.HP -= Damage;
         }
         else if (hero != null)
         {
-            if (hero.HP >= 0)
+			if (hero.HP >= 0 && !hero.isOP && !hero.isOPState)
                 hero.HP -= Damage;
         }
     }
