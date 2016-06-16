@@ -639,6 +639,7 @@ public class Hero : MonoBehaviour {
 			column [ColumnNo] = item;
 			stash.Remove(item);
 			EquipmentCheck(item);
+			SyncItem();
 			return true;
 		} else
 			return false;
@@ -654,8 +655,10 @@ public class Hero : MonoBehaviour {
 			ItemState ist = FindInItemStates(item.itemID);
 			if (ist != null){
 				if (ist.inCD){
-					if (!item.canUse)
+					if (!item.canUse){
+						SyncItem();
 						return true;
+					}
 					string attributes = im.FindInCache (item.itemID).Attributes;
 					string[] splitArray = attributes.Split (new char[2]{'_', ';'}, StringSplitOptions.RemoveEmptyEntries);
 					int type = int.Parse (splitArray [1]);
@@ -684,6 +687,7 @@ public class Hero : MonoBehaviour {
 					itemStates.Add(ist2);
 				}
 			}
+			SyncItem();
 			return true;
 		} else
 			return false;
@@ -691,9 +695,14 @@ public class Hero : MonoBehaviour {
 
 	public bool RemoveFromColumn(Item item, int ColumnNo){
 		if (ColumnNo < 6 && column [ColumnNo] != null) {
-			stash.Add(column[ColumnNo]);
+			Item i = FindItemInStash(item.itemID);
+			if (i != null)
+				i.itemNumber += item.itemNumber;
+			else
+				stash.Add(column[ColumnNo]);
 			EquipmentRemoveCheck(column[ColumnNo]);
 			column [ColumnNo] = null;
+			SyncItem();
 			return true;
 		} else
 			return false;
@@ -716,6 +725,13 @@ public class Hero : MonoBehaviour {
 	}
 
 	public void AddItem(int ID, int count){
+		for (int i = 0; i < 6; i++) {
+			if (column [i].itemID == ID) {
+				column [i].itemNumber += count;
+				SyncItem ();
+				return;
+			}
+		}
 		Item item = FindItemInStash (ID);
 		if (item != null) {
 			item.itemNumber += count;

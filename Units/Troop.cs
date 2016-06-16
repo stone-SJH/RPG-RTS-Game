@@ -44,7 +44,7 @@ public class Troop : MonoBehaviour {
 		hero = h.GetComponent<Hero> ();
 		animation = GetComponent<Animation>();
 
-		HP = 1000;
+		HP = maxHP;
 		speed = ordSpeed;
 		attack = ordAttack;
 		healCount = hero.healCount;

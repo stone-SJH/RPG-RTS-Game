@@ -152,6 +152,7 @@ public class fireflameDamage : MonoBehaviour{
 
     void makeDamage()
     {
+		ArrayList cleaner = new ArrayList ();
         foreach(GameObject obj in targets)
         {
             troop = obj.transform.GetComponent<Troop>();
@@ -160,15 +161,17 @@ public class fireflameDamage : MonoBehaviour{
 				if(!troop.isDead && !troop.isOPState)
                     troop.HP -= Damage;
                 else
-                    targets.Remove(obj);
+					cleaner.Add(obj);
             }
 			else if (hero != null){
 				if(hero.HP >= 0f && !hero.isOP && !hero.isOPState)
                     hero.HP -= Damage;
                 else
-                    targets.Remove(obj);
+					cleaner.Add(obj);
             }
         }
+		foreach (GameObject obj in cleaner)
+			targets.Remove (obj);
     }
 
 }

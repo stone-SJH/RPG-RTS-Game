@@ -8,11 +8,19 @@ public class Controller : MonoBehaviour
 {
 
 	public Hero hero;
+	public GameModeSwitch gms;
+	public Transform upper;
 
     public AnimationClip idleAnimation;
     public AnimationClip walkAnimation;
     public AnimationClip runAnimation;
+	public AnimationClip bladerunAnimation;
+	public AnimationClip drawbladeAnimation;
+	public AnimationClip putbladeAnimation;
     public AnimationClip jumpPoseAnimation;
+
+	public bool canMove = true;
+	public bool bladeInHand = false;
 
     public float walkMaxAnimationSpeed = 1.75f;
     public float trotMaxAnimationSpeed = 1.0f;
@@ -100,36 +108,7 @@ public class Controller : MonoBehaviour
         moveDirection = transform.TransformDirection(Vector3.forward);
 
         _animation = GetComponent<Animation>();
-        if (!_animation)
-            Debug.Log("The character you would like to control doesn't have animations. Moving her might look weird.");
-
-        /*
-    public var idleAnimation : AnimationClip;
-    public var walkAnimation : AnimationClip;
-    public var runAnimation : AnimationClip;
-    public var jumpPoseAnimation : AnimationClip;	
-        */
-        if (!idleAnimation)
-        {
-            _animation = null;
-            Debug.Log("No idle animation found. Turning off animations.");
-        }
-        if (!walkAnimation)
-        {
-            _animation = null;
-            Debug.Log("No walk animation found. Turning off animations.");
-        }
-        if (!runAnimation)
-        {
-            _animation = null;
-            Debug.Log("No run animation found. Turning off animations.");
-        }
-        if (!jumpPoseAnimation && canJump)
-        {
-            _animation = null;
-            Debug.Log("No jump animation found and the character has canJump enabled. Turning off animations.");
-        }
-
+		_animation [drawbladeAnimation.name].AddMixingTransform (upper);
     }
 
     void UpdateSmoothedMovementDirection()
@@ -293,10 +272,16 @@ public class Controller : MonoBehaviour
 
     void Update()
     {
-		walkSpeed = hero.speed * 0.3f;
-		trotSpeed = hero.speed * 0.7f;
-		runSpeed = hero.speed * 1.2f;
-
+		if (gms.RPGmode && canMove) {
+			walkSpeed = hero.speed * 0.3f;
+			trotSpeed = hero.speed * 0.6f;
+			runSpeed = hero.speed * 1.0f;
+		}
+		else {
+			walkSpeed = 0f;
+			trotSpeed = 0f;
+			runSpeed = 0f;
+		}
         if (!isControllable)
         {
             // kill all inputs if not controllable.
@@ -354,16 +339,30 @@ public class Controller : MonoBehaviour
                 {
                     if (_characterState == CharacterState.Running)
                     {
-                        _animation[runAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, runMaxAnimationSpeed);
-                        _animation.CrossFade(runAnimation.name);
+						if (!bladeInHand){
+							_animation.CrossFadeQueued(drawbladeAnimation.name);
+							bladeInHand = true;
+						}
+						else{
+							_animation[runAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, runMaxAnimationSpeed);
+							_animation.CrossFade(runAnimation.name);
+						}
                     }
                     else if (_characterState == CharacterState.Trotting)
                     {
+						if (bladeInHand){
+							_animation.CrossFade(putbladeAnimation.name);
+							bladeInHand = false;
+						}
                         _animation[walkAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, trotMaxAnimationSpeed);
                         _animation.CrossFade(walkAnimation.name);
                     }
                     else if (_characterState == CharacterState.Walking)
                     {
+						if (bladeInHand){
+							_animation.CrossFade(putbladeAnimation.name);
+							bladeInHand = false;
+						}
                         _animation[walkAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, walkMaxAnimationSpeed);
                         _animation.CrossFade(walkAnimation.name);
                     }
