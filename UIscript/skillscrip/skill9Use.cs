@@ -20,6 +20,8 @@ public class skill9Use : MonoBehaviour {
     public GraphicRaycaster graphicRaycaster;
     public Canvas ca;
 
+	public Camera aimCamera;
+
     // Use this for initialization
     void Start () {
         mycdimg = this.transform.FindChild("cdImg").gameObject;
@@ -55,7 +57,8 @@ public class skill9Use : MonoBehaviour {
 
             if (Input.GetMouseButtonDown(1))
             {
-                inChoosePosition = false;
+				inChoosePosition = false;
+				hero.Skill9CancelAimState();
                 this.GetComponent<Image>().color = Color.white;
             }
 
@@ -66,7 +69,7 @@ public class skill9Use : MonoBehaviour {
             }
 
             //向物体发射射线  
-            Ray mRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray mRay = aimCamera.ScreenPointToRay(Input.mousePosition);
             
             RaycastHit mHit;
 
@@ -75,17 +78,17 @@ public class skill9Use : MonoBehaviour {
             //射线检验  
             if (Physics.Raycast(mRay, out mHit, Mathf.Infinity))
             {
-                //Debug.DrawLine(Camera.main.transform.position, mRay.direction, Color.red);
-                
                 if (Input.GetMouseButtonDown(0))
                 {
                     hero.UseSkill9(mHit.point);
-                    mycdimg.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+					mycdimg.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+					hero.Skill9CancelAimState();
                     this.GetComponent<Image>().color = Color.white;
                 }
                 if (Input.GetMouseButtonDown(1))
                 {
-                    inChoosePosition = false;
+					inChoosePosition = false;
+					hero.Skill9CancelAimState();
                     this.GetComponent<Image>().color = Color.white;
                 }
 
@@ -102,7 +105,7 @@ public class skill9Use : MonoBehaviour {
             if (!inChoosePosition)
             {
                 //hero.UseSkill9();
-                
+				hero.Skill9AimState();
                 inChoosePosition = true;
                 this.GetComponent<Image>().color = Color.green;
                 //mycdimg.transform.GetComponent<RectTransform>().sizeDelta = new Vector2(imglengthx, imglengthy);
@@ -110,6 +113,7 @@ public class skill9Use : MonoBehaviour {
             else
             {
                 inChoosePosition = false;
+				hero.Skill9CancelAimState();
                 this.GetComponent<Image>().color = Color.white;
             }
         }

@@ -14,20 +14,21 @@ public class teslaBullet : MonoBehaviour {
     private int rotationSpeed = 10;
     private Vector3 tt_p;
     private bool isFire;
-    public float CD=0.3f;
+	public float ordCD = 0.9f;
+	private float CD;
     private float incd;
 
     public float Damage=30f;
 
-    private Troop troop;                            //<<<<<<<<<---------------------------------------
+    private Troop troop;
     private Hero hero;
-
+	private Hero hero2;
 
 
     // Use this for initialization
     void Start()
     {
-
+		hero2 = GameObject.Find ("Hero").GetComponent<Hero> ();
         isFire = false;
         incd = 0;
 
@@ -36,6 +37,11 @@ public class teslaBullet : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+		if (hero2.isSlowedState && Vector3.Distance(this.transform.position, hero2.slowedCenter) <= hero2.slowedRadius) {
+			CD = ordCD / hero2.slowedRatio;
+		} 
+		else
+			CD = ordCD;
         //toTarget();
         if (isFire)
         {

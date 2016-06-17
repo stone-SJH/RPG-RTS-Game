@@ -15,6 +15,9 @@ public class CatchCristal : MonoBehaviour {
     public ParticleSystem ps;
     private ParticleSystem myps;
 
+	
+	private GameModeSwitch gms;
+	private Camera RTScamera;
     
     //是否被选中
     private bool Ifcatch;
@@ -32,80 +35,73 @@ public class CatchCristal : MonoBehaviour {
         
         Ifcatch = false;
         parent_name = this.transform.parent.gameObject.name;
+		GameObject go1 = GameObject.Find("GameLogicManager");
+		gms = go1.transform.GetComponent<GameModeSwitch> ();
+		GameObject go2 = GameObject.Find("RTSCamera");
+		RTScamera = go2.transform.GetComponent<Camera> ();
     }
 
     void Update()
     {
-        //获取鼠标位置  
-        Vector3 mPos = Input.mousePosition;
+		//获取鼠标位置  
+		Vector3 mPos = Input.mousePosition;
 
-        if (CheckGuiRaycastObjects())
-        {
-            if (Ifcatch == false)
-            {
-                deleteEffect();
+		if (CheckGuiRaycastObjects ()) {
+			if (Ifcatch == false) {
+				deleteEffect ();
                 
-            }
-            return;
-        }
-
-        //向物体发射射线  
-        Ray mRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit mHit;
-        //射线检验  
-        if (Physics.Raycast(mRay, out mHit,Mathf.Infinity,1<<8))
-        {
-            //射线击中当前物体，表示鼠标指向该物体
+			}
+			return;
+		}
+		if (gms.RTSmode) {
+			//向物体发射射线  
+			Ray mRay = RTScamera.ScreenPointToRay (Input.mousePosition);
+			RaycastHit mHit;
+			//射线检验  
+			if (Physics.Raycast (mRay, out mHit, Mathf.Infinity, 1 << 8)) {
+				//射线击中当前物体，表示鼠标指向该物体
             
-            if (mHit.collider.gameObject.transform.parent.gameObject.name == parent_name)
-            {
-                //更改shader方法
-                makeEffect();
+				if (mHit.collider.gameObject.transform.parent.gameObject.name == parent_name) {
+					//更改shader方法
+					makeEffect ();
                 
                 
-                //鼠标左键点击选中
-                if (Input.GetMouseButtonDown(0))
-                {
-                    MakeInfo();
-                    Click();
+					//鼠标左键点击选中
+					if (Input.GetMouseButtonDown (0)) {
+						MakeInfo ();
+						Click ();
                     
-                }
-            }
+					}
+				}
             //射线未击中当前物体，表示鼠标未指向该物体
-            else
-            {
-                if (Ifcatch == false)
-                {
-                    deleteEffect();
+            else {
+					if (Ifcatch == false) {
+						deleteEffect ();
                     
-                }
-                //鼠标左键点击取消
-                if (Input.GetMouseButtonDown(0))
-                {
-                    if(Ifcatch==true)
-                        DeleteInfo();
-                    Cancel();
-                }
-            }
-        }
+					}
+					//鼠标左键点击取消
+					if (Input.GetMouseButtonDown (0)) {
+						if (Ifcatch == true)
+							DeleteInfo ();
+						Cancel ();
+					}
+				}
+			}
         //表示射线未击中任何物体
-        else
-        {
-            if (Ifcatch == false)
-            {
-                deleteEffect();
-                
-            }
-            //鼠标左键点击取消
-            if (Input.GetMouseButtonDown(0))
-            {
-                if(Ifcatch==true)
-                    DeleteInfo();
-                Cancel();
-            }
-        }
-        
-    }
+		    else {
+				if (Ifcatch == false) {
+					deleteEffect ();
+	            
+				}
+				//鼠标左键点击取消
+				if (Input.GetMouseButtonDown (0)) {
+					if (Ifcatch == true)
+						DeleteInfo ();
+					Cancel ();
+				}
+			}
+		}
+	}
     //点击事件
     void Click()
     {

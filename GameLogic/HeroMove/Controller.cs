@@ -21,6 +21,10 @@ public class Controller : MonoBehaviour
 
 	public bool canMove = true;
 	public bool bladeInHand = false;
+	public float drawBladeTime = 0f;
+	public bool startRun = false;
+	public float putBladeTime = 0f;
+	public bool startTrot = true;
 
     public float walkMaxAnimationSpeed = 1.75f;
     public float trotMaxAnimationSpeed = 1.0f;
@@ -108,7 +112,6 @@ public class Controller : MonoBehaviour
         moveDirection = transform.TransformDirection(Vector3.forward);
 
         _animation = GetComponent<Animation>();
-		_animation [drawbladeAnimation.name].AddMixingTransform (upper);
     }
 
     void UpdateSmoothedMovementDirection()
@@ -270,12 +273,25 @@ public class Controller : MonoBehaviour
         _characterState = CharacterState.Jumping;
     }
 
+	IEnumerator DrawBlade(){
+		startRun = false;
+		_animation.Play(drawbladeAnimation.name);
+		yield return new WaitForSeconds(_animation[drawbladeAnimation.name].time);
+		startRun = true;
+	}
+
     void Update()
     {
 		if (gms.RPGmode && canMove) {
 			walkSpeed = hero.speed * 0.3f;
-			trotSpeed = hero.speed * 0.6f;
-			runSpeed = hero.speed * 1.0f;
+			if (!startTrot)
+				trotSpeed = hero.speed * 0.1f;
+			else
+				trotSpeed = hero.speed * 0.6f;
+			if (!startRun)
+				runSpeed = hero.speed * 0.1f;
+			else
+				runSpeed = hero.speed * 1.0f;
 		}
 		else {
 			walkSpeed = 0f;
@@ -292,8 +308,8 @@ public class Controller : MonoBehaviour
         {
             lastJumpButtonTime = Time.time;
         }
-
-        UpdateSmoothedMovementDirection();
+		if (gms.RPGmode)
+        	UpdateSmoothedMovementDirection();
 
         // Apply gravity
         // - extra power jump modifies gravity
@@ -340,23 +356,39 @@ public class Controller : MonoBehaviour
                     if (_characterState == CharacterState.Running)
                     {
 						if (!bladeInHand){
-							_animation.CrossFadeQueued(drawbladeAnimation.name);
+							startRun = false;
 							bladeInHand = true;
+							_animation.Play(drawbladeAnimation.name);
+							drawBladeTime = 0f;
 						}
-						else{
-							_animation[runAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, runMaxAnimationSpeed);
-							_animation.CrossFade(runAnimation.name);
+						if (!startRun){
+							drawBladeTime += Time.deltaTime;
+						}
+						if (drawBladeTime >= 0.5f)
+							startRun = true;
+
+						if (startRun){
+							_animation[bladerunAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, runMaxAnimationSpeed);
+							_animation.CrossFade(bladerunAnimation.name);
 						}
                     }
                     else if (_characterState == CharacterState.Trotting)
                     {
 						if (bladeInHand){
-							_animation.CrossFade(putbladeAnimation.name);
+							startTrot = false;
 							bladeInHand = false;
+							_animation.CrossFade(putbladeAnimation.name);
+							putBladeTime = 0f;
 						}
-                        _animation[walkAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, trotMaxAnimationSpeed);
-                        _animation.CrossFade(walkAnimation.name);
-                    }
+						if (!startTrot)
+							putBladeTime += Time.deltaTime;
+						if (putBladeTime >= 0.5f)
+							startTrot = true;
+						if (startTrot){
+                        	_animation[walkAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, trotMaxAnimationSpeed);
+                        	_animation.CrossFade(walkAnimation.name);
+						}
+					}
                     else if (_characterState == CharacterState.Walking)
                     {
 						if (bladeInHand){

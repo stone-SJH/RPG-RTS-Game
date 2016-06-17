@@ -25,11 +25,14 @@ public class ItemState{
 public class Hero : MonoBehaviour {
 	//资源
 	public int crystals = 1000;
+	public int golds = 0;
 
 	//public GameObject hero;
 	public ItemManager im;
+	public GameModeSwitch gms;
 	public Item[] column = new Item[6];
 	public ArrayList stash = new ArrayList (); 
+	public GameObject aimCamera;
 
 	public ArrayList itemStates = new ArrayList ();
 
@@ -122,6 +125,7 @@ public class Hero : MonoBehaviour {
 				eltraAttack = float.Parse(splitArray[3]);
 				skillPoint = int.Parse(splitArray[4]);
 				exp = float.Parse(splitArray[5]);
+				golds = int.Parse(splitArray[6]);
 				break;	
 			}
 			case 2:
@@ -218,6 +222,7 @@ public class Hero : MonoBehaviour {
 		inf += "_" + eltraAttack.ToString () + ";";
 		inf += "_" + skillPoint.ToString () + ";";
 		inf += "_" + exp.ToString () + ";";
+		inf += "_" + golds.ToString () + ";";
 		inf += "\n";
 		inf += "_" + skill1.level.ToString () + ";";
 		inf += "_" + skill2.level.ToString () + ";";
@@ -234,7 +239,7 @@ public class Hero : MonoBehaviour {
 		fs.Close ();
 	}
 
-	void SyncItem(){
+	public void SyncItem(){
 		string fileName = saveFileNamePrefix + "_Stash_" + heroName + saveFileNameSuffix;
 		FileStream fs = new FileStream (fileName, FileMode.Truncate, FileAccess.Write);
 		StreamWriter sw = new StreamWriter (fs);
@@ -327,14 +332,15 @@ public class Hero : MonoBehaviour {
 		Access ();
 		Init ();
 
+		aimCamera.active = false;
 		HP = maxHP;
 		speed = ordSpeed;
 		attack = ordAttack;
 		ColumnEquipmentCheck ();
 	}
 
-	void HeroLevelUpCheck(){
-		if (exp >= expHap) {
+	public void HeroLevelUpCheck(){
+		while (exp >= expHap) {
 			exp -= expHap;
 			level++;
 			skillPoint++;
@@ -344,8 +350,8 @@ public class Hero : MonoBehaviour {
 			HP = maxHP;
 			attack = ordAttack;
 			speed = ordSpeed;
-			SyncHero();
 		}
+		SyncHero();
 	}
 
 	void SkillActivateCheck(){
@@ -634,12 +640,24 @@ public class Hero : MonoBehaviour {
 		inSlowLastTime = 0f;
 	}
 
+	public void Skill9AimState(){
+		gms.SwitchToNULL ();
+		aimCamera.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y + 200f, this.transform.position.z);
+		aimCamera.active = true;
+		Time.timeScale = 0f;
+	}
+
+	public void Skill9CancelAimState(){
+		gms.SwitchToRPG ();
+		aimCamera.active = false;
+		Time.timeScale = 1f;
+	}
+
 	public bool AddToColumn(Item item, int ColumnNo){
 		if (ColumnNo < 6 && column [ColumnNo] == null) {
 			column [ColumnNo] = item;
 			stash.Remove(item);
 			EquipmentCheck(item);
-			SyncItem();
 			return true;
 		} else
 			return false;
@@ -687,7 +705,6 @@ public class Hero : MonoBehaviour {
 					itemStates.Add(ist2);
 				}
 			}
-			SyncItem();
 			return true;
 		} else
 			return false;
@@ -702,7 +719,6 @@ public class Hero : MonoBehaviour {
 				stash.Add(column[ColumnNo]);
 			EquipmentRemoveCheck(column[ColumnNo]);
 			column [ColumnNo] = null;
-			SyncItem();
 			return true;
 		} else
 			return false;
@@ -750,7 +766,6 @@ public class Hero : MonoBehaviour {
 				item.canUse = true;
 			stash.Add (item);
 		}
-		SyncItem ();
 	}
 
 	public void SellItem(Item item, int sellCount){
@@ -763,8 +778,10 @@ public class Hero : MonoBehaviour {
 			item.itemNumber -= sellCount;
 			if (item.itemNumber == 0)
 				stash.Remove(item);
+			golds += (int)(Mathf.Floor(_cost * 0.5f));
+			SyncHero();
+			SyncItem();
 		}
-		SyncItem ();
 	}
 
 	public ItemState FindInItemStates(int ID){
@@ -825,7 +842,6 @@ public class Hero : MonoBehaviour {
 			if (item.itemNumber == 0){
 				column[ColumnNo] = null;
 			}
-			SyncItem();
 		} 
 		else if (type == 2) {
 			int tag = int.Parse(splitArray[3]);
@@ -869,7 +885,6 @@ public class Hero : MonoBehaviour {
 					column[ColumnNo] = null;
 				}
 				Debug.Log("use");
-				SyncItem();
 				break;
 			} 
 			case 1:{
@@ -903,7 +918,6 @@ public class Hero : MonoBehaviour {
 				if (item.itemNumber == 0){
 					column[ColumnNo] = null;
 				}
-				SyncItem();
 				break;
 			}
 			}

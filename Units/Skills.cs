@@ -167,11 +167,11 @@ public class Skill9{
 	
 	public int level = 0;
 	public int maxLevel = 5;
-	public float initialRadius = 7.8f;
-	public float radiusRatio = 2.2f;
-	public float initialLastTime = 15f;
-	public float lastTimeRatio = 5f;
-	public float slowRatio = 0.5f;
+	public float initialRadius = 300f;
+	public float radiusRatio = 5f;
+	public float initialLastTime = 10f;
+	public float lastTimeRatio = 1f;
+	public float slowRatio = 0.4f;
 	public float inLastTime = 0f;
 	
 	public bool available = true;

@@ -23,7 +23,7 @@ public class Treasure : MonoBehaviour {
 		if (!inOpenState)
 			StartOpen ();
 		*/
-		if ((Vector3.Distance (hero.transform.position, this.transform.position) <= radius) && hero.HP > 0)
+		if (inOpenState && (Vector3.Distance (hero.transform.position, this.transform.position) <= radius) && hero.HP > 0)
 			inOpenTime += Time.deltaTime;
 		else {
 			inOpenTime = 0f;
@@ -41,7 +41,6 @@ public class Treasure : MonoBehaviour {
 
 	public bool StartOpen(){
 		//return true 表示开始打开箱子， false 表示因距离太远而失败
-		Debug.Log(Vector3.Distance (hero.transform.position, this.transform.position));
 		if (Vector3.Distance (hero.transform.position, this.transform.position) <= radius) {
 			inOpenState = true;
 			hero.GetComponent<Controller>().canMove = false;

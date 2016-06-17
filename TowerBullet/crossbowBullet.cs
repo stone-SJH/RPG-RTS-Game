@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class crossbowBullet : MonoBehaviour {
-
+	
     public GameObject bullet;
     private GameObject myBullet;
     private ArrayList targets=new ArrayList();
@@ -12,27 +12,38 @@ public class crossbowBullet : MonoBehaviour {
     private int rotationSpeed=10;
     private Vector3 tt_p;
     private bool isFire;
-    public float CD=0.2f;
+	public float ordCD = 0.5f; 
+    public float CD;
     private float incd;
     public float Damage = 2f;
 
     private Troop troop;
     private Hero hero;
-
+	private Hero hero2;
 
     // Use this for initialization
     void Start () {
         isFire = false;
-        incd = 0;
-        //CD = 0.2f;
+        incd = 0f;
+		hero2 = GameObject.Find ("Hero").GetComponent<Hero> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        //toTarget();
+		if (hero2.isSlowedState && Vector3.Distance(this.transform.position, hero2.slowedCenter) <= hero2.slowedRadius) {
+			CD = ordCD / hero2.slowedRatio;
+		} 
+		else
+			CD = ordCD;
+		
+		if (hero2.isSlowedState && Vector3.Distance (this.transform.position, hero2.slowedCenter) <= hero2.slowedRadius) {
+			this.transform.GetComponent<Animator> ().speed = hero2.slowedRatio;
+		} else {
+			this.transform.GetComponent<Animator> ().speed = 1f;
+		}
+
         if (isFire)
         {
-           
             toTarget();
             Fire();
         }
@@ -115,7 +126,7 @@ public class crossbowBullet : MonoBehaviour {
 
     void beginFire()
     {
-        ///Debug.Log("fff");
+        //Debug.Log("fff");
         this.transform.GetComponent<Animator>().SetBool("shoot", true);
         isFire = true;
     }

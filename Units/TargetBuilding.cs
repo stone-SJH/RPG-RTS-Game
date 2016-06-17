@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class cube : MonoBehaviour {
+public class TargetBuilding : MonoBehaviour {
+
+	public float HP;
+	public float radius;
 
 	// Use this for initialization
 	void Start () {
-        select.cubes.Add(this.gameObject);
+	
 	}
 	
 	// Update is called once per frame
