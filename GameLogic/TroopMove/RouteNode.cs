@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class RouteNode : MonoBehaviour {
+public class RouteNode{
 	public RouteNode prev = null;
 	public RouteNode succ = null;
 	public Vector3 position;

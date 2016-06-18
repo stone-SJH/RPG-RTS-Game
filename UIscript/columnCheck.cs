@@ -2,8 +2,10 @@
 using System.Collections;
 using UnityEngine.UI;
 using System;
+using UnityEngine.EventSystems;
 
-public class columnCheck : MonoBehaviour {
+public class columnCheck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+{
 
     public Hero hero;
     public Item item;
@@ -48,4 +50,16 @@ public class columnCheck : MonoBehaviour {
             this.transform.FindChild("Text").GetComponent<Text>().text = "";
         }
 	}
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+
+    {
+
+    }
+
 }

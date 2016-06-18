@@ -131,6 +131,7 @@ public class Troop : MonoBehaviour {
 		if (HP <= 0 && !isDead) {
 			animation.CrossFade (deadAnimation.name);
 			isDead = true;
+			this.transform.GetComponent<CharacterController>().enabled = false;
 			Invoke ("SinkAndDestroy", deadTime);
 		}
 	}

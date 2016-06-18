@@ -10,6 +10,10 @@ public class herocolumn : MonoBehaviour {
     public GameObject hs;
     public GameObject iw;
 
+    private GameObject heroname;
+    private GameObject herogold;
+    private GameObject herolevel;
+
     void Awake()
     {
         Invoke("init", 1f);
@@ -19,11 +23,16 @@ public class herocolumn : MonoBehaviour {
 	void Start () {
         init();
         ifuse = true;
+        heroname = this.transform.FindChild("heroName").gameObject;
+        herogold = this.transform.FindChild("heroGold").gameObject;
+        herolevel = this.transform.FindChild("heroLevel").gameObject;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+        heroname.GetComponent<Text>().text = hero.heroName;
+        herolevel.GetComponent<Text>().text = hero.level.ToString();
+        herogold.GetComponent<Text>().text = hero.golds.ToString();
 	}
 
     void init()
@@ -38,7 +47,7 @@ public class herocolumn : MonoBehaviour {
                 column.transform.GetComponent<columnCheck>().item = null;
                 column.transform.GetComponent<columnCheck>().isempty = true;
                 column.transform.GetComponent<Image>().sprite = Resources.Load<Sprite>("transparent");
-				continue;
+                continue;
             }
             int id = it.itemID;
             int num = it.itemNumber;

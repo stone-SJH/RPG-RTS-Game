@@ -21,7 +21,14 @@ public class stashCheck : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+        if (!isempty)
+        {
+            this.transform.FindChild("Text").GetComponent<Text>().text = item.itemNumber.ToString();
+        }
+        else
+        {
+            this.transform.FindChild("Text").GetComponent<Text>().text = "";
+        }
     }
 	
     void incd()

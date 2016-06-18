@@ -11,6 +11,11 @@ public class RTSMapController : MonoBehaviour {
 	public float zMinBoundary = 370f;
 	public float zMaxBoundary = 730f;
 
+	public float yMinBoundary = 80f;
+	public float yMaxBoundary = 150f;
+	public float sensitivity = 10f;
+
+
 	// Use this for initialization
 	void Start () {
 	
@@ -18,6 +23,9 @@ public class RTSMapController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if ((Input.GetAxis ("Mouse ScrollWheel") * sensitivity > 0 && this.transform.position.y <= yMaxBoundary) || (Input.GetAxis ("Mouse ScrollWheel") * sensitivity < 0 && this.transform.position.y >= yMinBoundary))
+			this.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y + Input.GetAxis ("Mouse ScrollWheel") * sensitivity, this.transform.position.z);
+
 		if (Input.mousePosition.x <= (0 + boardOffset)) {
 			if (this.transform.position.z >= xMinBoundary)
 				this.transform.Translate (-1 * speed * Time.deltaTime, 0, 0);

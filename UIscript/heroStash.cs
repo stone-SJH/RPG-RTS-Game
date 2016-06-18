@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 public class heroStash : MonoBehaviour {
 
@@ -67,6 +68,39 @@ public class heroStash : MonoBehaviour {
         myItemInfo.transform.FindChild("itemInfo").transform.FindChild("itemEdge").transform.FindChild("Image").GetComponent<Image>().sprite = Resources.Load<Sprite>(it.itemID.ToString());
         myItemInfo.transform.GetComponent<itemWindow>().item = it;
         GameObject.Find("Canvas").transform.FindChild("heroColumn").transform.FindChild("heroColumn").GetComponent<herocolumn>().iw = myItemInfo.gameObject;
+        ItemManager im = GameObject.Find("GameLogicManager").GetComponent<ItemManager>();
+        ItemCache ic = im.FindInCache(it.itemID);
+        string[] splitArray2 = ic.Attributes.Split(new char[2] { ';', '_' }, 3, StringSplitOptions.RemoveEmptyEntries);
+        string[] splitArray3 = splitArray2[0].Split(new char[1] { '-' }, 2, StringSplitOptions.RemoveEmptyEntries);
+        Debug.Log(splitArray3[0]);//这个是物品名字
+        Debug.Log(splitArray3[1]);//这个是物品简介
+        myItemInfo.transform.FindChild("itemInfo").transform.FindChild("title").GetComponent<Text>().text = splitArray3[0];
+        myItemInfo.transform.FindChild("itemInfo").transform.FindChild("itemName").GetComponent<Text>().text = splitArray3[1];
+
+        //Debug.Log(splitArray2[2]);
+        if (splitArray2[1] == "0")
+        {
+            string[] splitArray4 = splitArray2[2].Split(new char[1] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            myItemInfo.transform.FindChild("itemInfo").transform.FindChild("information").GetComponent<Text>().text = "需要等级: " + splitArray4[0] + "\n" +
+                "HP: " + splitArray4[1] + "\n" + "速度: " + splitArray4[2] + "\n" + "攻击力: " + splitArray4[3] + "\n" + "价格: " + splitArray4[4];
+
+
+        }
+        else if (splitArray2[1] == "1")
+        {
+            string[] splitArray4 = splitArray2[2].Split(new char[1] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            myItemInfo.transform.FindChild("itemInfo").transform.FindChild("information").GetComponent<Text>().text = "回复血量: " + splitArray4[1] + "  " +
+                "提升HP上限: " + splitArray4[2] + "\n" + "提升速度: " + splitArray4[3] + "\n" + "持续时间: " + splitArray4[4] + "  " + "冷却时间: " + splitArray4[5] + "\n" +
+                "价格: " + splitArray4[6];
+              
+        }
+        else
+        {
+
+        }
+
+
+        //myItemInfo.transform.FindChild("itemInfo").
     }
 
 }

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 public class Treasure : MonoBehaviour {
 	public Hero hero;
-	public Controller controller;
 	public int crystals;
 	public int[] items;
 
@@ -18,6 +17,9 @@ public class Treasure : MonoBehaviour {
 
     public GameObject notice;
     private GameObject mynotice;
+
+    public GameObject schedule;
+    private GameObject mysc;
 
     public GameObject selecteffect;
     private GameObject myse;
@@ -36,7 +38,6 @@ public class Treasure : MonoBehaviour {
         name = this.gameObject.name;
         gms = GameObject.Find("GameLogicManager").transform.GetComponent<GameModeSwitch>();
         cam = GameObject.Find("RPGCamera").transform.GetComponent<Camera>();
-		controller = GameObject.Find ("Hero").GetComponent<Controller> ();
     }
 	
 	// Update is called once per frame
@@ -47,13 +48,14 @@ public class Treasure : MonoBehaviour {
 		*/
         
 
-        if (inOpenState && (Vector3.Distance (hero.transform.position, this.transform.position) <= radius) && (hero.HP > 0))
+        if (inOpenState && (Vector3.Distance (hero.transform.position, this.transform.position) <= radius) && hero.HP > 0)
 			inOpenTime += Time.deltaTime;
+		
 		if (inOpenTime >= openTime) {
 			foreach (int i in items)
 				hero.AddItem(i, 1);
 			hero.crystals += crystals;
-			controller.canMove = true;
+			hero.GetComponent<Controller>().canMove = true;
 			Destroy(gameObject);
 		}
         raycheck();
@@ -71,9 +73,15 @@ public class Treasure : MonoBehaviour {
 
     public void startOpen()
     {
+
+        mysc = Instantiate(schedule);
+        mysc.transform.SetParent(this.transform);
+        mysc.transform.localPosition = new Vector3(0, 0, 0);
+        
+        mysc.transform.localScale= new Vector3(1, 1, 1); 
+
+        hero.GetComponent<Controller>().canMove = false;
         inOpenState = true;
-        controller.canMove = false;
-		controller.toPickUp = this;
     }
 
     void raycheck()
@@ -109,7 +117,7 @@ public class Treasure : MonoBehaviour {
                             mynotice = Instantiate(notice);
                             mynotice.transform.SetParent(ca.transform);
                             mynotice.transform.localPosition = new Vector3(0, 0, 0);
-                            mynotice.transform.GetComponent<noticeWindow>().treasure = this;
+                            mynotice.transform.GetComponent<noticeWindow>().treasure = this.GetComponent<Treasure>();
                         }
 
                     }
@@ -117,12 +125,18 @@ public class Treasure : MonoBehaviour {
                 //射线未击中当前物体，表示鼠标未指向该物体
                 else
                 {
+                    
                         deleteEffect();
+
+                    
+                    
+                    
                 }
             }
             //表示射线未击中任何物体
             else
             {
+                
             }
         }
     }

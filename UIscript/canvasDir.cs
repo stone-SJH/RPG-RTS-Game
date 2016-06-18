@@ -9,9 +9,10 @@ public class canvasDir : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        rpgcam = GameObject.Find("RPGCamera").GetComponent<Camera>();
-        rtscam = GameObject.Find("RTSCamera").GetComponent<Camera>();
         gms = GameObject.Find("GameLogicManager").GetComponent<GameModeSwitch>();
+        rpgcam = GameObject.Find("Cameras").transform.Find("RPGCamera").GetComponent<Camera>();
+        rtscam = GameObject.Find("Cameras").transform.Find("RTSCamera").GetComponent<Camera>();
+        
     }
 	
 	// Update is called once per frame
