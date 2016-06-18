@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Move : MonoBehaviour {
 
-    public PathNode cur;
+    public RouteNode cur = null;
     public float speed;
     public Move instance;
 	public float gravity = 98f;
@@ -20,7 +20,7 @@ public class Move : MonoBehaviour {
 	void RotateAndMove()
 	{
 		float y = transform.eulerAngles.y;
-		this.transform.LookAt(cur.transform);
+		this.transform.LookAt(cur.transform.position);
 		Vector3 target = this.transform.eulerAngles;
 		float succ = Mathf.MoveTowardsAngle(y, target.y, 120 * Time.deltaTime);
 		this.transform.eulerAngles = new Vector3(0, succ, 0);
@@ -63,7 +63,7 @@ public class Move : MonoBehaviour {
 	void Update () {
 		speed = troop.speed;
 		ApplyGravity();
-		if (!troop.isDead)
+		if (cur != null && !troop.isDead)
 			RotateAndMove ();
 	}
 }

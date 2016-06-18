@@ -24,7 +24,7 @@ public class stashButton : MonoBehaviour {
     {
         myssw = Instantiate(ssw);
         myssw.transform.parent = this.transform.parent.transform.parent;
-        myssw.transform.localPosition = new Vector3(0, 0, 0);
+        myssw.transform.localPosition = new Vector3(0, 20, 0);
         myssw.transform.FindChild("skills").transform.FindChild("skill1").GetComponent<skill1Button>().hero = hero;
         myssw.transform.FindChild("skills").transform.FindChild("skill2").GetComponent<skill2Button>().hero = hero;
         myssw.transform.FindChild("skills").transform.FindChild("skill3").GetComponent<skill3Button>().hero = hero;

@@ -3,6 +3,10 @@ using System.Collections;
 
 public class PathNode : MonoBehaviour {
 
+	public int ID;//点过ID=2的pathnode后自动结束路径
+	public PathNode[] adjacent;
+	public int state;//1 表示为当前选择点，2表示可作为下一个选择点，0表示不可以作为下一个选择点
+
 	// Use this for initialization
 	void Start () {
 	
@@ -12,32 +16,4 @@ public class PathNode : MonoBehaviour {
 	void Update () {
 	
 	}
-
-    public PathNode prev;
-    public PathNode succ;
-    public void setSucc(PathNode node)
-    {
-        if (node == null)
-        {
-            succ = null;
-            return;
-        }
-        succ = node;
-        node.prev = this;
-    }
-    public void setPrev(PathNode node)
-    {
-        if (node == null)
-        {
-            prev = null;
-            return;
-        }
-        prev = node;
-        node.succ = this;
-    }
-    //draw icon
-    void OnDrawGizmos()
-    {
-        Gizmos.DrawIcon(this.transform.position, "flag.png");
-    }
 }

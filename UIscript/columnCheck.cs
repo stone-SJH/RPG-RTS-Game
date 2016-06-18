@@ -43,5 +43,9 @@ public class columnCheck : MonoBehaviour {
                 }
             }
         }
+        else
+        {
+            this.transform.FindChild("Text").GetComponent<Text>().text = "";
+        }
 	}
 }

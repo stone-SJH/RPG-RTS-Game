@@ -10,6 +10,7 @@ public class Controller : MonoBehaviour
 	public Hero hero;
 	public GameModeSwitch gms;
 	public Transform upper;
+	public Treasure toPickUp;
 
     public AnimationClip idleAnimation;
     public AnimationClip walkAnimation;
@@ -17,6 +18,7 @@ public class Controller : MonoBehaviour
 	public AnimationClip bladerunAnimation;
 	public AnimationClip drawbladeAnimation;
 	public AnimationClip putbladeAnimation;
+	public AnimationClip pickupAnimation;
     public AnimationClip jumpPoseAnimation;
 
 	public bool canMove = true;
@@ -160,7 +162,7 @@ public class Controller : MonoBehaviour
                 if (moveSpeed < walkSpeed * 0.9f && grounded)
                 {
                     moveDirection = targetDirection.normalized;
-                }
+				}
                 // Otherwise smoothly turn towards it
                 else
                 {
@@ -308,9 +310,10 @@ public class Controller : MonoBehaviour
         {
             lastJumpButtonTime = Time.time;
         }
-		if (gms.RPGmode)
-        	UpdateSmoothedMovementDirection();
 
+		if (gms.RPGmode && canMove) {
+			UpdateSmoothedMovementDirection ();
+		}
         // Apply gravity
         // - extra power jump modifies gravity
         // - controlledDescent mode modifies gravity
@@ -320,17 +323,19 @@ public class Controller : MonoBehaviour
         //ApplyJumping();
 
         // Calculate actual motion
-        Vector3 movement = moveDirection * moveSpeed + new Vector3(0, verticalSpeed, 0) + inAirVelocity;
+        Vector3 movement =  moveDirection * moveSpeed + new Vector3(0, verticalSpeed, 0) + inAirVelocity;
         movement *= Time.deltaTime;
 
         // Move the controller
         CharacterController controller = GetComponent<CharacterController>();
         collisionFlags = controller.Move(movement);
-
         // ANIMATION sector
         if (_animation)
         {
-            if (_characterState == CharacterState.Jumping)
+			if (!canMove){
+				_animation.Play(pickupAnimation.name);
+			}
+            else if (_characterState == CharacterState.Jumping)
             {
                 if (!jumpingReachedApex)
                 {

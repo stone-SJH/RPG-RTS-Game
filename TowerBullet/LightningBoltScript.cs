@@ -389,8 +389,10 @@ namespace DigitalRuby.LightningBolt
 		}
         void makeDamage()
         {
-			if (troop != null && !troop.isOPState)
-                troop.HP -= Damage;
+			if (troop != null && !troop.isOPState) {
+				troop.HP -= Damage;
+				troop.transform.FindChild ("HPslider").transform.FindChild ("HP").GetComponent<Slider> ().value = troop.HP / troop.maxHP;
+			}
 			else if (hero != null && !hero.isOP && !hero.isOPState)
                 hero.HP -= Damage;
         }

@@ -32,10 +32,17 @@ public class herocolumn : MonoBehaviour {
         for(i = 0; i < 6; i++)
         {
             Item it = hero.column[i];
-            if (hero.column[i] == null) continue;
+            GameObject column = this.transform.FindChild("column" + (i + 1).ToString()).gameObject;
+            if (hero.column[i] == null)
+            {
+                column.transform.GetComponent<columnCheck>().item = null;
+                column.transform.GetComponent<columnCheck>().isempty = true;
+                column.transform.GetComponent<Image>().sprite = Resources.Load<Sprite>("transparent");
+				continue;
+            }
             int id = it.itemID;
             int num = it.itemNumber;
-            GameObject column = this.transform.FindChild("column" + (i + 1).ToString()).gameObject;
+           
             column.transform.GetComponent<columnCheck>().item = it;
             column.transform.GetComponent<columnCheck>().isempty = false;
             column.transform.GetComponent<Image>().sprite = Resources.Load<Sprite>(id.ToString());
@@ -61,6 +68,7 @@ public class herocolumn : MonoBehaviour {
                 Item it = obj.transform.GetComponent<columnCheck>().item;
                 hero.UseItem(it, num - 1);
                 Debug.Log("useItem");
+                init();
             }
         }
         else

@@ -436,8 +436,6 @@ public class Hero : MonoBehaviour {
 		foreach (ItemState ist in itemStates) {
 			if (ist.OP)
 				isOP = true;
-			else
-				isOP = false;
 			if (ist.inBUFF)
 				ist.inLastTime += Time.deltaTime;
 			if (ist.inCD)
@@ -449,7 +447,10 @@ public class Hero : MonoBehaviour {
 				ordSpeed -= ist.extraSpeed;
 				ordAttack -= ist.extraAttack;
 				ist.inBUFF = false;
-				ist.OP = false;
+				if (ist.OP){
+					ist.OP = false;
+					isOP = false;
+				}
 			}
 			if (ist.inCD && ist.inCDTime >= ist.CD){
 				ist.inCD = false;
@@ -742,7 +743,7 @@ public class Hero : MonoBehaviour {
 
 	public void AddItem(int ID, int count){
 		for (int i = 0; i < 6; i++) {
-			if (column [i].itemID == ID) {
+			if (column[i] != null && column [i].itemID == ID) {
 				column [i].itemNumber += count;
 				SyncItem ();
 				return;

@@ -38,6 +38,12 @@ public class ItemManager : MonoBehaviour {
 			ItemCache ic = new ItemCache ();
 			ic.ID = int.Parse (splitArray [0]);
 			ic.Attributes = splitArray [1];
+			/*
+			string[] splitArray2 = ic.Attributes.Split(new char[2]{';', '_'}, 2, StringSplitOptions.RemoveEmptyEntries);
+			string[] splitArray3 = splitArray2[0].Split(new char[1]{'-'}, 2, StringSplitOptions.RemoveEmptyEntries);
+			Debug.Log(splitArray3[0]);//这个是物品名字
+			Debug.Log(splitArray3[1]);//这个是物品简介
+			*/
 			Cache.Add (ic);
 		}
 		CacheDone = true;
