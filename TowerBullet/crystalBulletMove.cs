@@ -32,9 +32,12 @@ public class crystalBulletMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		this.transform.rotation = Quaternion.LookRotation(new Vector3(target.transform.position.x, target.transform.position.y + height, target.transform.position.z) - this.transform.position);
-        this.transform.Translate(Vector3.forward * Time.deltaTime * speed);
-    }
+		if (target != null) {
+			this.transform.rotation = Quaternion.LookRotation (new Vector3 (target.transform.position.x, target.transform.position.y + height, target.transform.position.z) - this.transform.position);
+			this.transform.Translate (Vector3.forward * Time.deltaTime * speed);
+		} else
+			destroyself ();
+	}
 
     void OnTriggerEnter(Collider col)
     {

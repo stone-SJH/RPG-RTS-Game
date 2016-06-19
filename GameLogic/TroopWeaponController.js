@@ -10,6 +10,7 @@ private var currentweapon :  Transform;
 
  function Start()
  {
+ 	weaponGroup = GameObject.Find("WeaponGroup").GetComponent.<TroopWeaponGroup>();
 	currentweapon = Instantiate(weaponGroup.weapons[weaponNO], weaponHand.position, weaponHand.rotation) as Transform;
  	currentweapon.parent = weaponHand;
  }

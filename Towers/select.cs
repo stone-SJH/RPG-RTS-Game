@@ -1,20 +1,53 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class select : MonoBehaviour
 {
 
     public Color rectColor = Color.green;
-    static public ArrayList cubes = new ArrayList();
-    static public ArrayList selectcubes = new ArrayList();
+    static public ArrayList troops = new ArrayList();
+    static public ArrayList selecttroops = new ArrayList();
+    static public ArrayList notselecttroops = new ArrayList();
+
+    private ArrayList deadtroops = new ArrayList();
     public Text txt;
 
     private Vector3 start = Vector3.zero;//记下鼠标按下位置
     private Vector3 end = Vector3.zero;//记下鼠标放开位置
     public  Material rectMat = null;//画线的材质 不设定系统会用当前材质画线 结果不可控
     private bool drawRectangle = false;//是否开始画线标志
-   
+
+    private bool chooseNode;
+
+    public PathNode pn;
+
+    public EventSystem eventsystem;
+    public GraphicRaycaster graphicRaycaster;
+    public Canvas ca;
+
+    private GameModeSwitch gms;
+    public Camera RTScamera;
+
+    bool ifcatch;
+
+    GameObject oobj;
+
+    void Awake()
+    {
+        
+        //RimColor = new Color(0.2F, 0.8F, 10.6F, 1);
+
+        
+        
+        GameObject go1 = GameObject.Find("GameLogicManager");
+        gms = go1.transform.GetComponent<GameModeSwitch>();
+        GameObject go2 = GameObject.Find("RTSCamera");
+        RTScamera = go2.transform.GetComponent<Camera>();
+        
+    }
 
     // Use this for initialization
     void Start()
@@ -26,26 +59,37 @@ public class select : MonoBehaviour
         //    "    BindChannels {" +
         //    "      Bind \"vertex\", vertex Bind \"color\", color }" +
         //    "} } }");//生成画线的材质
+
         rectMat.hideFlags = HideFlags.HideAndDontSave;
         rectMat.shader.hideFlags = HideFlags.HideAndDontSave;
+        chooseNode = false;
+        ifcatch = false;
     }
 
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!chooseNode)
         {
-            drawRectangle = true;//如果鼠标左键按下 设置开始画线标志
-            start = Input.mousePosition;//记录按下位置
-            selectcubes.Clear();
+            raycheck();
+            
         }
-        else if (Input.GetMouseButtonUp(0))
+        else
         {
-            drawRectangle = false;//如果鼠标左键放开 结束画线
-            checkSelection(start,end);
-            renderSelectcubes();
+            if (Input.GetMouseButtonDown(1))
+            {
+                foreach(GameObject obj in selecttroops)
+                {
+					if (obj != null){
+                    	obj.GetComponent<Troop>().se.active = false;
+					}
+                }
+                selecttroops.Clear();
+                //notselecttroops.Clear();
+                renderSelectcubes();
+                chooseNode = false;
+            }
         }
-
     }
 
     void OnPostRender()
@@ -99,8 +143,14 @@ public class select : MonoBehaviour
             p1.y = start.y;
             p2.y = end.y;
         }
-        foreach (GameObject obj in cubes)
+        
+        foreach (GameObject obj in troops)
         {//把可选择的对象保存在cubes数组里
+            if (obj == null)
+            {
+                deadtroops.Add(obj);
+                continue;
+            }
             Vector3 location = this.GetComponent<Camera>().WorldToScreenPoint(obj.transform.position);//把对象的position转换成屏幕坐标
             if (location.x < p1.x || location.x > p2.x || location.y < p1.y || location.y > p2.y
                 || location.z < this.GetComponent<Camera>().nearClipPlane || location.z > this.GetComponent<Camera>().farClipPlane)//z方向就用摄像机的设定值，看不见的也不需要选择了
@@ -112,18 +162,154 @@ public class select : MonoBehaviour
                 selecting(obj);//否则就进行选中操作，比如把物体放到画轮廓线的层去
             }
         }
+        foreach(GameObject obj in deadtroops)
+        {
+            troops.Remove(obj);
+        }
+        deadtroops.Clear();
     }
 
     void selecting(GameObject obj)
     {
-        selectcubes.Add(obj);
+        selecttroops.Add(obj);
     }
     void disselecting(GameObject obj)
     {
-
+        //notselecttroops.Add(obj);
     }
     void renderSelectcubes()//渲染已选中的物体
     {
-        txt.text = selectcubes.Count.ToString();
+        foreach(GameObject obj in selecttroops)
+        {
+            obj.GetComponent<Troop>().se.active = true;
+            //Debug.Log(obj.gameObject.name);
+        }
+        /*foreach (GameObject obj in notselecttroops)
+        {
+            obj.GetComponent<Troop>().se.active = false;
+            //Debug.Log(obj.gameObject.name);
+        }*/
+        //txt.text = selecttroops.Count.ToString();
     }
+
+    void raycheck()
+    {
+        Vector3 mPos = Input.mousePosition;
+
+        if (CheckGuiRaycastObjects())
+        {
+
+            //deleteEffect();
+
+
+            return;
+        }
+        if (gms.RTSmode)
+        {
+            //向物体发射射线  
+            Ray mRay = RTScamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit mHit;
+            //射线检验  
+            if (Physics.Raycast(mRay, out mHit, Mathf.Infinity, 1 << 10))
+            {
+                //射线击中当前物体，表示鼠标指向该物体
+
+                if (mHit.collider.gameObject.tag=="soldier")
+                {
+                    //更改shader方法
+                    //makeEffect();
+
+
+                    //鼠标左键点击选中
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        //MakeInfo();
+
+                        //makeEffect(mHit.collider.gameObject);
+                        oobj = mHit.collider.gameObject;
+
+                    }
+                    else if (Input.GetMouseButtonUp(0))
+                    {
+                        if (oobj == mHit.collider.gameObject)
+                        {
+                            makeEffect(oobj);
+                        }
+                    }
+                }
+                //射线未击中当前物体，表示鼠标未指向该物体
+                else
+                {
+
+                    //deleteEffect();
+
+
+                    //鼠标左键点击取消
+                    if (Input.GetMouseButtonDown(0))
+                    {
+
+                    }
+                }
+            }
+            //表示射线未击中任何物体
+            else
+            {
+
+
+                //deleteEffect();
+
+
+                //鼠标左键点击取消
+                if (Input.GetMouseButtonDown(0))
+                {
+                    drawRectangle = true;//如果鼠标左键按下 设置开始画线标志
+                    start = Input.mousePosition;//记录按下位置
+                    selecttroops.Clear();
+                    notselecttroops.Clear();
+                }
+                else if (Input.GetMouseButtonUp(0))
+                {
+                    drawRectangle = false;//如果鼠标左键放开 结束画线
+                    checkSelection(start, end);
+                    renderSelectcubes();
+                    if (selecttroops.Count != 0)
+                    {
+                        chooseNode = true;
+                    }
+                    GameObject.Find("PathNodes").GetComponent<RouteManager>().CreateNewRoute();
+                    GameObject.Find("PathNodes").GetComponent<PathManager>().PathnodeAccessableCheck(pn);
+
+                }
+            }
+        }
+    }
+    bool CheckGuiRaycastObjects()
+    {
+        PointerEventData eventData = new PointerEventData(eventsystem);
+        eventData.pressPosition = Input.mousePosition;
+        eventData.position = Input.mousePosition;
+
+        List<RaycastResult> list = new List<RaycastResult>();
+        graphicRaycaster.Raycast(eventData, list);
+        //Debug.Log(list.Count);
+        return list.Count > 0;
+    }
+
+    void makeEffect(GameObject obj)
+    {
+        selecttroops.Clear();
+        ifcatch = true;
+        chooseNode = true;
+        obj.GetComponent<Troop>().se.active = true;
+        selecttroops.Add(obj);
+        GameObject.Find("PathNodes").GetComponent<RouteManager>().CreateNewRoute();
+        GameObject.Find("PathNodes").GetComponent<PathManager>().PathnodeAccessableCheck(pn);
+    }
+    void deleteEffect(GameObject obj)
+    {
+        ifcatch = false;
+        chooseNode = false;
+        obj.GetComponent<Troop>().se.active = false;
+    }
+
 }

@@ -10,8 +10,8 @@ public class CatchTesla : MonoBehaviour
     public EventSystem eventsystem;
     public GraphicRaycaster graphicRaycaster;
     public Canvas ca;
-    public Text txt;
-    private Text mytxt;
+    public GameObject txt;
+    private GameObject mytxt;
 
     public ParticleSystem ps;
     private ParticleSystem myps;
@@ -118,9 +118,8 @@ public class CatchTesla : MonoBehaviour
 
         if (Ifcatch == false)
         {
-            mytxt = (Text)Instantiate(txt);
+            mytxt = Instantiate(txt);
             mytxt.GetComponent<Transform>().SetParent(ca.GetComponent<Transform>());
-            mytxt.text = "tesla";
             mytxt.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
         }
 

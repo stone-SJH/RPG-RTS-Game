@@ -28,19 +28,19 @@ public class RTSMapController : MonoBehaviour {
 
 		if (Input.mousePosition.x <= (0 + boardOffset)) {
 			if (this.transform.position.z >= xMinBoundary)
-				this.transform.Translate (-1 * speed * Time.deltaTime, 0, 0);
+				this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, this.transform.position.z - speed * Time.deltaTime);
 		}
 		if (Input.mousePosition.x >= (Screen.width - boardOffset)) {
 			if (this.transform.position.z <= xMaxBoundary)
-				this.transform.Translate (1 * speed * Time.deltaTime, 0, 0);
+				this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, this.transform.position.z + speed * Time.deltaTime);
 		}
 		if (Input.mousePosition.y <= (0 + boardOffset)) {
 			if (this.transform.position.x <= zMaxBoundary)
-				this.transform.Translate (0, -1 * speed * Time.deltaTime, 0);
+				this.transform.position = new Vector3(this.transform.position.x + speed * Time.deltaTime, this.transform.position.y, this.transform.position.z);
 		}	
 		if (Input.mousePosition.y >= (Screen.height - boardOffset)) {
 			if (this.transform.position.x >= zMinBoundary)
-				this.transform.Translate (0, 1 * speed * Time.deltaTime, 0);
+				this.transform.position = new Vector3(this.transform.position.x - speed * Time.deltaTime, this.transform.position.y, this.transform.position.z);
 		}
 	}
 }

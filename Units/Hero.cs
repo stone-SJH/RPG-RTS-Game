@@ -329,6 +329,25 @@ public class Hero : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+		Debug.Log (skill1.introduction);
+		Debug.Log (skill1.GetAbility());
+		Debug.Log (skill2.introduction);
+		Debug.Log (skill2.GetAbility());
+		Debug.Log (skill3.introduction);
+		Debug.Log (skill3.GetAbility());
+		Debug.Log (skill4.introduction);
+		Debug.Log (skill4.GetAbility());
+		Debug.Log (skill5.introduction);
+		Debug.Log (skill5.GetAbility());
+		Debug.Log (skill6.introduction);
+		Debug.Log (skill6.GetAbility());
+		Debug.Log (skill7.introduction);
+		Debug.Log (skill7.GetAbility());
+		Debug.Log (skill8.introduction);
+		Debug.Log (skill8.GetAbility());
+		Debug.Log (skill9.introduction);
+		Debug.Log (skill9.GetAbility());
 		Access ();
 		Init ();
 

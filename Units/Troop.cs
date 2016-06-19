@@ -6,6 +6,7 @@ public class Troop : MonoBehaviour {
 	public float deadTime = 1f;
 	//造价
 	public int crystalCost = 200;
+	public GameObject se;
 	//当前值
 	public float HP;
 	public float speed;
@@ -41,6 +42,8 @@ public class Troop : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		GameObject h = GameObject.Find (heroName);
+		se = this.transform.FindChild ("troopselect").gameObject;
+		se.active = false;
 		hero = h.GetComponent<Hero> ();
 		animation = GetComponent<Animation>();
 
@@ -50,6 +53,7 @@ public class Troop : MonoBehaviour {
 		healCount = hero.healCount;
 		nowAddHP = hero.addHP;
 		nowAddSpeed = hero.addSpeed;
+		select.troops.Add (this.gameObject);
 	}
 
 	void SpeedDetermine(){
@@ -142,7 +146,7 @@ public class Troop : MonoBehaviour {
 	}
 
 	IEnumerator sad(){
-		while (gameObject.transform.position.y >= -10) {
+		while (gameObject.transform.position.y >= -5) {
 			gameObject.transform.Translate (0, -2 * Time.deltaTime, 0);
 			yield return null;
 		}

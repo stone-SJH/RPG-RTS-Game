@@ -52,9 +52,10 @@ public class mortarBullet : MonoBehaviour {
 
         if (isFire)
         {
-
-            toTarget();
-            Fire();
+			if (target != null){
+            	toTarget();
+            	Fire();
+			}
         }
     }
 
@@ -84,7 +85,6 @@ public class mortarBullet : MonoBehaviour {
         {
             target = (GameObject)targets[0];
             targetindex = 0;
-            this.GetComponent<Text>().text = target.gameObject.name;
             beginFire();
         }
     }
@@ -100,8 +100,8 @@ public class mortarBullet : MonoBehaviour {
         else if (col.gameObject.name == target.gameObject.name)
         {
             targets.Remove(col.gameObject);
-            target = (GameObject)targets[0];
-            this.GetComponent<Text>().text = target.gameObject.name;
+			if (targets.Count > 0)
+            	target = (GameObject)targets[0];
         }
         else
         {
@@ -122,17 +122,17 @@ public class mortarBullet : MonoBehaviour {
 
     void toTarget()
     {
-
-        Vector3 t_position = target.transform.position;
-        tt_p = t_position;
-        Vector3 c_position = this.transform.position;
-        Vector3 t_position_1 = t_position;
-        Vector3 c_position_1 = c_position;
-        t_position.y = c_position.y;
-        this.transform.localRotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(t_position - c_position), rotationSpeed * Time.deltaTime);
-        //this.transform.FindChild("Base").transform.FindChild("Turret").rotation =
-            //Quaternion.Slerp(this.transform.FindChild("Base").transform.FindChild("Turret").rotation, Quaternion.LookRotation(t_position_1 - c_position_1), rotationSpeed * Time.deltaTime);
-
+		if (ifTargetisDead ()) {
+			Vector3 t_position = target.transform.position;
+			tt_p = t_position;
+			Vector3 c_position = this.transform.position;
+			Vector3 t_position_1 = t_position;
+			Vector3 c_position_1 = c_position;
+			t_position.y = c_position.y;
+			this.transform.localRotation = Quaternion.Slerp (this.transform.rotation, Quaternion.LookRotation (t_position - c_position), rotationSpeed * Time.deltaTime);
+			//this.transform.FindChild("Base").transform.FindChild("Turret").rotation =
+			//Quaternion.Slerp(this.transform.FindChild("Base").transform.FindChild("Turret").rotation, Quaternion.LookRotation(t_position_1 - c_position_1), rotationSpeed * Time.deltaTime);
+		}
     }
 
     void changeTarget()
@@ -157,7 +157,7 @@ public class mortarBullet : MonoBehaviour {
     {
         if (incd == 0)
         {
-            if (ifTargetisDead())
+            if (!ifTargetisDead())
             {
                 if (targets.Count == 1)
                 {
@@ -191,7 +191,7 @@ public class mortarBullet : MonoBehaviour {
 	{
 		troop = target.transform.GetComponent<Troop> ();
 		hero = target.transform.GetComponent<Hero> ();
-		if (/*(hero != null && hero.isDead()) ||*/ (troop != null && troop.isDead))
+		if ((hero != null && hero.HP <= 0) || (troop != null && troop.isDead))
 		{
 			
 			return true;

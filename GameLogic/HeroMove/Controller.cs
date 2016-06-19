@@ -8,6 +8,7 @@ public class Controller : MonoBehaviour
 {
 
 	public Hero hero;
+	public bool isDead;
 	public GameModeSwitch gms;
 	public Transform upper;
 	public Treasure toPickUp;
@@ -20,6 +21,7 @@ public class Controller : MonoBehaviour
 	public AnimationClip putbladeAnimation;
 	public AnimationClip pickupAnimation;
     public AnimationClip jumpPoseAnimation;
+	public AnimationClip deadAnimation;
 
 	public bool canMove = true;
 	public bool bladeInHand = false;
@@ -112,7 +114,7 @@ public class Controller : MonoBehaviour
     void Awake()
     {
         moveDirection = transform.TransformDirection(Vector3.forward);
-
+		isDead = false;
         _animation = GetComponent<Animation>();
     }
 
@@ -284,160 +286,157 @@ public class Controller : MonoBehaviour
 
     void Update()
     {
-		if (gms.RPGmode && canMove) {
-			walkSpeed = hero.speed * 0.3f;
-			if (!startTrot)
-				trotSpeed = hero.speed * 0.1f;
-			else
-				trotSpeed = hero.speed * 0.6f;
-			if (!startRun)
-				runSpeed = hero.speed * 0.1f;
-			else
-				runSpeed = hero.speed * 1.0f;
-		}
-		else {
-			walkSpeed = 0f;
-			trotSpeed = 0f;
-			runSpeed = 0f;
-		}
-        if (!isControllable)
-        {
-            // kill all inputs if not controllable.
-            Input.ResetInputAxes();
-        }
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            lastJumpButtonTime = Time.time;
-        }
-
-		if (gms.RPGmode && canMove) {
-			UpdateSmoothedMovementDirection ();
-		}
-        // Apply gravity
-        // - extra power jump modifies gravity
-        // - controlledDescent mode modifies gravity
-        ApplyGravity();
-
-        // Apply jumping logic
-        //ApplyJumping();
-
-        // Calculate actual motion
-        Vector3 movement =  moveDirection * moveSpeed + new Vector3(0, verticalSpeed, 0) + inAirVelocity;
-        movement *= Time.deltaTime;
-
-        // Move the controller
-        CharacterController controller = GetComponent<CharacterController>();
-        collisionFlags = controller.Move(movement);
-        // ANIMATION sector
-        if (_animation)
-        {
-			if (!canMove){
-				_animation.Play(pickupAnimation.name);
+		if (hero.HP >= 0) {
+			if (gms.RPGmode && canMove) {
+				walkSpeed = hero.speed * 0.3f;
+				if (!startTrot)
+					trotSpeed = hero.speed * 0.1f;
+				else
+					trotSpeed = hero.speed * 0.6f;
+				if (!startRun)
+					runSpeed = hero.speed * 0.1f;
+				else
+					runSpeed = hero.speed * 1.0f;
+			} else {
+				walkSpeed = 0f;
+				trotSpeed = 0f;
+				runSpeed = 0f;
 			}
-            else if (_characterState == CharacterState.Jumping)
-            {
-                if (!jumpingReachedApex)
-                {
-                    _animation[jumpPoseAnimation.name].speed = jumpAnimationSpeed;
-                    _animation[jumpPoseAnimation.name].wrapMode = WrapMode.ClampForever;
-                    _animation.CrossFade(jumpPoseAnimation.name);
-                }
-                else
-                {
-                    _animation[jumpPoseAnimation.name].speed = -landAnimationSpeed;
-                    _animation[jumpPoseAnimation.name].wrapMode = WrapMode.ClampForever;
-                    _animation.CrossFade(jumpPoseAnimation.name);
-                }
-            }
-            else
-            {
-                if (controller.velocity.sqrMagnitude < 0.1f)
-                {
-                    _animation.CrossFade(idleAnimation.name);
-                }
-                else
-                {
-                    if (_characterState == CharacterState.Running)
-                    {
-						if (!bladeInHand){
-							startRun = false;
-							bladeInHand = true;
-							_animation.Play(drawbladeAnimation.name);
-							drawBladeTime = 0f;
-						}
-						if (!startRun){
-							drawBladeTime += Time.deltaTime;
-						}
-						if (drawBladeTime >= 0.5f)
-							startRun = true;
+			if (!isControllable) {
+				// kill all inputs if not controllable.
+				Input.ResetInputAxes ();
+			}
 
-						if (startRun){
-							_animation[bladerunAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, runMaxAnimationSpeed);
-							_animation.CrossFade(bladerunAnimation.name);
-						}
-                    }
-                    else if (_characterState == CharacterState.Trotting)
-                    {
-						if (bladeInHand){
-							startTrot = false;
-							bladeInHand = false;
-							_animation.CrossFade(putbladeAnimation.name);
-							putBladeTime = 0f;
-						}
-						if (!startTrot)
-							putBladeTime += Time.deltaTime;
-						if (putBladeTime >= 0.5f)
-							startTrot = true;
-						if (startTrot){
-                        	_animation[walkAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, trotMaxAnimationSpeed);
-                        	_animation.CrossFade(walkAnimation.name);
-						}
+			if (Input.GetButtonDown ("Jump")) {
+				lastJumpButtonTime = Time.time;
+			}
+
+			if (gms.RPGmode && canMove) {
+				UpdateSmoothedMovementDirection ();
+			}
+			// Apply gravity
+			// - extra power jump modifies gravity
+			// - controlledDescent mode modifies gravity
+			ApplyGravity ();
+
+			// Apply jumping logic
+			//ApplyJumping();
+
+			// Calculate actual motion
+			Vector3 movement = moveDirection * moveSpeed + new Vector3 (0, verticalSpeed, 0) + inAirVelocity;
+			movement *= Time.deltaTime;
+
+			// Move the controller
+			CharacterController controller = GetComponent<CharacterController> ();
+			collisionFlags = controller.Move (movement);
+			// ANIMATION sector
+			if (_animation) {
+				if (!canMove) {
+					_animation.Play (pickupAnimation.name);
+				} else if (_characterState == CharacterState.Jumping) {
+					if (!jumpingReachedApex) {
+						_animation [jumpPoseAnimation.name].speed = jumpAnimationSpeed;
+						_animation [jumpPoseAnimation.name].wrapMode = WrapMode.ClampForever;
+						_animation.CrossFade (jumpPoseAnimation.name);
+					} else {
+						_animation [jumpPoseAnimation.name].speed = -landAnimationSpeed;
+						_animation [jumpPoseAnimation.name].wrapMode = WrapMode.ClampForever;
+						_animation.CrossFade (jumpPoseAnimation.name);
 					}
-                    else if (_characterState == CharacterState.Walking)
-                    {
-						if (bladeInHand){
-							_animation.CrossFade(putbladeAnimation.name);
-							bladeInHand = false;
+				} else {
+					if (controller.velocity.sqrMagnitude < 0.1f) {
+						_animation.CrossFade (idleAnimation.name);
+					} else {
+						if (_characterState == CharacterState.Running) {
+							if (!bladeInHand) {
+								startRun = false;
+								bladeInHand = true;
+								_animation.Play (drawbladeAnimation.name);
+								drawBladeTime = 0f;
+							}
+							if (!startRun) {
+								drawBladeTime += Time.deltaTime;
+							}
+							if (drawBladeTime >= 0.5f)
+								startRun = true;
+
+							if (startRun) {
+								_animation [bladerunAnimation.name].speed = Mathf.Clamp (controller.velocity.magnitude, 0.0f, runMaxAnimationSpeed);
+								_animation.CrossFade (bladerunAnimation.name);
+							}
+						} else if (_characterState == CharacterState.Trotting) {
+							if (bladeInHand) {
+								startTrot = false;
+								bladeInHand = false;
+								_animation.CrossFade (putbladeAnimation.name);
+								putBladeTime = 0f;
+							}
+							if (!startTrot)
+								putBladeTime += Time.deltaTime;
+							if (putBladeTime >= 0.5f)
+								startTrot = true;
+							if (startTrot) {
+								_animation [walkAnimation.name].speed = Mathf.Clamp (controller.velocity.magnitude, 0.0f, trotMaxAnimationSpeed);
+								_animation.CrossFade (walkAnimation.name);
+							}
+						} else if (_characterState == CharacterState.Walking) {
+							if (bladeInHand) {
+								_animation.CrossFade (putbladeAnimation.name);
+								bladeInHand = false;
+							}
+							_animation [walkAnimation.name].speed = Mathf.Clamp (controller.velocity.magnitude, 0.0f, walkMaxAnimationSpeed);
+							_animation.CrossFade (walkAnimation.name);
 						}
-                        _animation[walkAnimation.name].speed = Mathf.Clamp(controller.velocity.magnitude, 0.0f, walkMaxAnimationSpeed);
-                        _animation.CrossFade(walkAnimation.name);
-                    }
 
-                }
-            }
-        }
-        // ANIMATION sector
+					}
+				}
+			}
+			// ANIMATION sector
 
-        // Set rotation to the move direction
-        if (IsGrounded())
-        {
+			// Set rotation to the move direction
+			if (IsGrounded ()) {
 
-            transform.rotation = Quaternion.LookRotation(moveDirection);
+				transform.rotation = Quaternion.LookRotation (moveDirection);
 
-        }
-        else
-        {
-            Vector3 xzMove = movement;
-            xzMove.y = 0;
-            if (xzMove.sqrMagnitude > 0.001f)
-            {
-                transform.rotation = Quaternion.LookRotation(xzMove);
-            }
-        }
+			} else {
+				Vector3 xzMove = movement;
+				xzMove.y = 0;
+				if (xzMove.sqrMagnitude > 0.001f) {
+					transform.rotation = Quaternion.LookRotation (xzMove);
+				}
+			}
 
-        // We are in jump mode but just became grounded
-        if (IsGrounded())
-        {
-            lastGroundedTime = Time.time;
-            inAirVelocity = Vector3.zero;
-            if (jumping)
-            {
-                jumping = false;
-                SendMessage("DidLand", SendMessageOptions.DontRequireReceiver);
-            }
-        }
+			// We are in jump mode but just became grounded
+			if (IsGrounded ()) {
+				lastGroundedTime = Time.time;
+				inAirVelocity = Vector3.zero;
+				if (jumping) {
+					jumping = false;
+					SendMessage ("DidLand", SendMessageOptions.DontRequireReceiver);
+				}
+			}
+		} else {
+			if (!isDead){
+				isDead = true;
+				_animation.CrossFade(deadAnimation.name);
+				Invoke ("SinkAndDestroy", 3f);
+			}
+		}
     }
+
+	void SinkAndDestroy(){
+		//Debug.Log("dead done");
+		gms.SwitchToRTS ();
+		StartCoroutine (sad ());
+	}
+	
+	IEnumerator sad(){
+		while (gameObject.transform.position.y >= -10f) {
+			gameObject.transform.Translate (0, -2 * Time.deltaTime, 0);
+			yield return null;
+		}
+		yield return null;
+	}
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {

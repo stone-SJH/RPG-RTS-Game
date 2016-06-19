@@ -2,15 +2,16 @@
 using System.Collections;
 
 public class RouteManager : MonoBehaviour {
+    public int No;
 	public PathNode startPN;
-	public RouteNode start;
+	public RouteNode[] start = new RouteNode[10000];
 	public RouteNode cur;
 	public PathNode curPN;
 
 	public PathNode[] InsidePath;
 	// Use this for initialization
 	void Start () {
-	
+        No = 0;
 	}
 	
 	// Update is called once per frame
@@ -19,10 +20,10 @@ public class RouteManager : MonoBehaviour {
 	}
 
 	public void CreateNewRoute(){
-		start = new RouteNode();
-		start.position = startPN.transform.position;
-		start.prev = null;
-		cur = start;
+		start[No] = new RouteNode();
+		start[No].position = startPN.transform.position;
+		start[No].prev = null;
+		cur = start[No];
 		curPN = startPN;
 	}
 
@@ -44,5 +45,6 @@ public class RouteManager : MonoBehaviour {
 
 	public void FinishRoute(){
 		cur.succ = null;
+        No++;
 	}
 }

@@ -73,7 +73,6 @@ public class fireflameDamage : MonoBehaviour{
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
-        Debug.Log("fire");
         targets.Add(col.gameObject);
         if (isFire == false)
         {
@@ -113,7 +112,6 @@ public class fireflameDamage : MonoBehaviour{
 
     void toTarget()
     {
-
         Vector3 t_position = target.transform.position;
         tt_p = t_position;
         Vector3 c_position = this.transform.position;
@@ -123,7 +121,6 @@ public class fireflameDamage : MonoBehaviour{
         //this.transform.rotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(t_position - c_position), rotationSpeed * Time.deltaTime);
         //this.transform.FindChild("Base").transform.FindChild("Turret").rotation =
         //Quaternion.Slerp(this.transform.FindChild("Base").transform.FindChild("Turret").rotation, Quaternion.LookRotation(t_position_1 - c_position_1), rotationSpeed * Time.deltaTime);
-
     }
 
     void changeTarget()
