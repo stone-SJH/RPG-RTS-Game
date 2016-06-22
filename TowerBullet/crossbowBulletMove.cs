@@ -6,7 +6,7 @@ public class crossbowBulletMove : MonoBehaviour {
     private float x;
     private float y;
     private float z;
-    public int speed=500;
+    public int speed=50;
     private GameObject target;
     private float Damage;
 	private float height;
@@ -17,7 +17,7 @@ public class crossbowBulletMove : MonoBehaviour {
 
     void Awake()
     {
-        Destroy(this.gameObject, 5);
+        Destroy(this.gameObject, 2);
     }
 
 	// Use this for initialization
@@ -30,14 +30,13 @@ public class crossbowBulletMove : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (target == null) {
+		if (target != null) {
 			//this.transform.position=new Vector3(this.transform.position)
 			this.transform.rotation = Quaternion.LookRotation (new Vector3 (target.transform.position.x, target.transform.position.y + height, target.transform.position.z) - this.transform.position);
 			this.transform.Rotate (new Vector3 (90, 0, 0));
         
 			this.transform.Translate (Vector3.up * Time.deltaTime * speed);
-		} else
-			destroyself ();
+		}
 	}
 
     void OnTriggerEnter(Collider col)

@@ -17,7 +17,7 @@ public class CatchFireFlame : MonoBehaviour
     private ParticleSystem myps;
 	
 	private GameModeSwitch gms;
-	private Camera RTScamera;
+	private GameObject RTScamera;
 
     //是否被选中
     private bool Ifcatch;
@@ -25,21 +25,25 @@ public class CatchFireFlame : MonoBehaviour
     private string name;
     private string parent_name;
 
+	private bool inited = false;
 
     void Start()
     {
         name = this.gameObject.name;
         parent_name = this.transform.parent.gameObject.name;
         Ifcatch = false;
-		
-		GameObject go1 = GameObject.Find("GameLogicManager");
-		gms = go1.transform.GetComponent<GameModeSwitch> ();
-		GameObject go2 = GameObject.Find("RTSCamera");
-		RTScamera = go2.transform.GetComponent<Camera> ();
+		inited = false;
+
     }
 
     void Update()
     {
+		if (!inited) {
+			GameObject go1 = GameObject.Find("GameLogicManager");
+			gms = go1.transform.GetComponent<GameModeSwitch> ();
+			RTScamera = GameObject.Find("RTSCamera");
+			inited = true;
+		}
 		//获取鼠标位置  
 		Vector3 mPos = Input.mousePosition;
 
@@ -51,8 +55,9 @@ public class CatchFireFlame : MonoBehaviour
 			return;
 		}
 		if (gms.RTSmode){
+			RTScamera = GameObject.Find("RTSCamera");
 			//向物体发射射线  
-			Ray mRay = RTScamera.ScreenPointToRay (Input.mousePosition);
+			Ray mRay = RTScamera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 			RaycastHit mHit;
 			//射线检验  
 			if (Physics.Raycast (mRay, out mHit, Mathf.Infinity, 1 << 8)) {

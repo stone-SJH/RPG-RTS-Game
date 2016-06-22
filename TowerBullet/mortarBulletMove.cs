@@ -36,7 +36,6 @@ public class mortarBulletMove : MonoBehaviour {
 		float d = Mathf.Sqrt ((targetPosition.x - startPosition.x) * (targetPosition.x - startPosition.x) + (targetPosition.z - startPosition.z) * (targetPosition.z - startPosition.z));
 		float h = Mathf.Abs(targetPosition.y - startPosition.y);
 		initSpeed = Mathf.Sqrt(Mathf.Abs((d * d * g * g) / (g * h + g * d)));
-		Debug.Log (initSpeed);
 		vertSpeed = initSpeed * Mathf.Sqrt (2f) / 2f;
 		horiSpeed = initSpeed * Mathf.Sqrt (2f) / 2f;
 	}
@@ -73,14 +72,16 @@ public class mortarBulletMove : MonoBehaviour {
     }
 
     void findTarget()
-    {
+    {	
         target = this.transform.parent.parent.transform.GetComponent<mortarBullet>().target;
-		height = target.transform.GetComponent<CharacterController>().height * target.transform.lossyScale.y * 0.1f;
-		targetPosition = new Vector3(target.transform.position.x, target.transform.position.y + height, target.transform.position.z);
-        startPosition = this.transform.position;
-        endPosition = target.transform.position;
-        Damage = this.transform.parent.parent.transform.GetComponent<mortarBullet>().Damage;
-        this.transform.parent.DetachChildren();
+		if (target != null) {
+			height = target.transform.GetComponent<CharacterController> ().height * target.transform.lossyScale.y * 0.1f;
+			targetPosition = new Vector3 (target.transform.position.x, target.transform.position.y + height, target.transform.position.z);
+			startPosition = this.transform.position;
+			endPosition = target.transform.position;
+			Damage = this.transform.parent.parent.transform.GetComponent<mortarBullet> ().Damage;
+			this.transform.parent.DetachChildren ();
+		}
     }
 
     void makeDamage()

@@ -16,7 +16,9 @@ public class CatchMortar : MonoBehaviour {
     private ParticleSystem myps;
 
 	private GameModeSwitch gms;
-	private Camera RTScamera;
+	private GameObject RTScamera;
+
+	private bool inited = false;
 
     //是否被选中
     private bool Ifcatch;
@@ -30,15 +32,18 @@ public class CatchMortar : MonoBehaviour {
         name = this.gameObject.name;
         parent_name = this.transform.parent.gameObject.name;
         Ifcatch = false;
-		
-		GameObject go1 = GameObject.Find("GameLogicManager");
-		gms = go1.transform.GetComponent<GameModeSwitch> ();
-		GameObject go2 = GameObject.Find("RTSCamera");
-		RTScamera = go2.transform.GetComponent<Camera> ();
+		inited = false;
+
     }
 
     void Update()
     {
+		if (!inited) {
+			GameObject go1 = GameObject.Find("GameLogicManager");
+			gms = go1.transform.GetComponent<GameModeSwitch> ();
+			RTScamera = GameObject.Find("RTSCamera");
+			inited = true;
+		}
 		//获取鼠标位置  
 		Vector3 mPos = Input.mousePosition;
 
@@ -52,7 +57,8 @@ public class CatchMortar : MonoBehaviour {
 
 		//向物体发射射线  
 		if (gms.RTSmode){
-			Ray mRay = RTScamera.ScreenPointToRay (Input.mousePosition);
+			RTScamera = GameObject.Find("RTSCamera");
+			Ray mRay = RTScamera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 			RaycastHit mHit;
 			//射线检验  
 			if (Physics.Raycast (mRay, out mHit, Mathf.Infinity, 1 << 8)) {

@@ -22,6 +22,9 @@ public class skill9Use : MonoBehaviour {
 
 	public Camera aimCamera;
 
+	public GameObject sphere;
+	private GameObject mysphere;
+
     // Use this for initialization
     void Start () {
         mycdimg = this.transform.FindChild("cdImg").gameObject;
@@ -29,6 +32,10 @@ public class skill9Use : MonoBehaviour {
         imglengthy = mycdimg.transform.GetComponent<RectTransform>().sizeDelta.y;
         mycdimg.transform.GetComponent<RectTransform>().sizeDelta = new Vector2(imglengthx, 0);
         inChoosePosition = false;
+		mysphere = Instantiate (sphere);
+		Debug.Log (hero.skill9.getRadius () * 2);
+
+		mysphere.active = false;
     }
 	
 	// Update is called once per frame
@@ -76,17 +83,26 @@ public class skill9Use : MonoBehaviour {
             
 
             //射线检验  
-            if (Physics.Raycast(mRay, out mHit, Mathf.Infinity))
+            if (Physics.Raycast(mRay, out mHit, Mathf.Infinity,1<<11))
             {
+				//Debug.Log(mHit.point);
+				mysphere.transform.localScale = new Vector3 (hero.skill9.getRadius() * 2, hero.skill9.getRadius() * 2, hero.skill9.getRadius() * 2);
+				mysphere.transform.position=mHit.point;
                 if (Input.GetMouseButtonDown(0))
                 {
+
+
                     hero.UseSkill9(mHit.point);
+
+					mysphere.active=false;
+					//Debug.Log(mHit.point);
 					mycdimg.transform.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
 					hero.Skill9CancelAimState();
                     this.GetComponent<Image>().color = Color.white;
                 }
                 if (Input.GetMouseButtonDown(1))
                 {
+					mysphere.active=false;
 					inChoosePosition = false;
 					hero.Skill9CancelAimState();
                     this.GetComponent<Image>().color = Color.white;
@@ -105,6 +121,7 @@ public class skill9Use : MonoBehaviour {
             if (!inChoosePosition)
             {
                 //hero.UseSkill9();
+				mysphere.active=true;
 				hero.Skill9AimState();
                 inChoosePosition = true;
                 this.GetComponent<Image>().color = Color.green;
@@ -112,6 +129,7 @@ public class skill9Use : MonoBehaviour {
             }
             else
             {
+				mysphere.active=false;
                 inChoosePosition = false;
 				hero.Skill9CancelAimState();
                 this.GetComponent<Image>().color = Color.white;

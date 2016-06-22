@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class mortarBullet : MonoBehaviour {
 
     public GameObject bullet;
@@ -24,6 +25,8 @@ public class mortarBullet : MonoBehaviour {
     private Troop troop;
     private Hero hero;
 	private Hero hero2;
+
+	public AudioClip fireSound;
 
     // Use this for initialization
     void Start()
@@ -61,6 +64,7 @@ public class mortarBullet : MonoBehaviour {
 
     void makeBullet()
     {
+		this.GetComponent<AudioSource> ().PlayOneShot (fireSound, 0.7f);
         myBullet = Instantiate(bullet);
         myBullet.GetComponent<Transform>().SetParent(this.GetComponent<Transform>().FindChild("bulletparent").transform);
         myBullet.GetComponent<Transform>().localPosition = new Vector3(0, 1, 0.5f);
@@ -92,6 +96,8 @@ public class mortarBullet : MonoBehaviour {
     void OnTriggerExit(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
+		if (target == null)
+			return;
         if (targets.Count == 1)
         {
             targets.Remove(col.gameObject);
@@ -122,7 +128,7 @@ public class mortarBullet : MonoBehaviour {
 
     void toTarget()
     {
-		if (ifTargetisDead ()) {
+		if (!ifTargetisDead ()) {
 			Vector3 t_position = target.transform.position;
 			tt_p = t_position;
 			Vector3 c_position = this.transform.position;
@@ -155,26 +161,54 @@ public class mortarBullet : MonoBehaviour {
 
     void Fire()
     {
+		if(targets.Count==0){
+			endFire();
+			return;
+		}
+		ArrayList clean = new ArrayList ();
+		foreach (GameObject obj in targets) {
+			
+			if(obj==null){
+				clean.Add(obj);
+				continue;
+			}
+			troop = obj.transform.GetComponent<Troop> ();
+			hero = obj.transform.GetComponent<Hero> ();
+			if(troop!=null){
+				if(obj!=target && troop.isDead)
+					clean.Add(obj);
+			}
+			else if(hero!=null){
+				if(hero.HP<=0){
+					clean.Add(obj);
+				}
+			}
+			
+		}
+		foreach (GameObject obj in clean) {
+			targets.Remove(obj);
+		}
+		if (ifTargetisDead())
+		{
+			if(targets.Count==0){
+				endFire();
+			}
+			else if (targets.Count == 1)
+			{
+				targets.Remove(target);
+				endFire();
+			}
+			else
+			{
+				targets.Remove(target);
+				target = (GameObject)targets[0];
+				//makeBullet();
+			}
+		}
         if (incd == 0)
         {
-            if (!ifTargetisDead())
-            {
-                if (targets.Count == 1)
-                {
-                    targets.Remove(target);
-                    endFire();
-                }
-                else
-                {
-                    targets.Remove(target);
-                    target = (GameObject)targets[0];
-                    makeBullet();
-                }
-            }
-            else
-            {
-                makeBullet();
-            }
+            makeBullet();
+            
             incd += Time.deltaTime;
         }
         else if (incd >= CD)

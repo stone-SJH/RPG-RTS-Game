@@ -14,6 +14,11 @@ public class herocolumn : MonoBehaviour {
     private GameObject herogold;
     private GameObject herolevel;
 
+    public GameObject gameMenu;
+    private GameObject mygm;
+
+    //public bool pause;
+
     void Awake()
     {
         Invoke("init", 1f);
@@ -23,6 +28,7 @@ public class herocolumn : MonoBehaviour {
 	void Start () {
         init();
         ifuse = true;
+        //pause = false;
         heroname = this.transform.FindChild("heroName").gameObject;
         herogold = this.transform.FindChild("heroGold").gameObject;
         herolevel = this.transform.FindChild("heroLevel").gameObject;
@@ -33,6 +39,8 @@ public class herocolumn : MonoBehaviour {
         heroname.GetComponent<Text>().text = hero.heroName;
         herolevel.GetComponent<Text>().text = hero.level.ToString();
         herogold.GetComponent<Text>().text = hero.golds.ToString();
+
+        
 	}
 
     void init()

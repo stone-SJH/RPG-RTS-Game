@@ -9,14 +9,18 @@ public class heroStash : MonoBehaviour {
     public GameObject itemInfo;
     private GameObject myItemInfo;
 
+	private GameObject sp;
+
 	// Use this for initialization
 	void Start () {
         init();
+		sp = this.transform.FindChild ("skillPoint").gameObject;
 	}
 	
 	// Update is called once per frame
 	void Update () {
         //init();
+		sp.GetComponent<Text> ().text = "技能点: \n" + hero.skillPoint.ToString ();
 	}
 
     public void init()

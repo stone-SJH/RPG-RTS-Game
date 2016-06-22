@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class crossbowBullet : MonoBehaviour {
 	
     public GameObject bullet;
@@ -20,6 +21,7 @@ public class crossbowBullet : MonoBehaviour {
     private Troop troop;
     private Hero hero;
 	private Hero hero2;
+	public AudioClip fireSound;
 
     // Use this for initialization
     void Start () {
@@ -53,6 +55,7 @@ public class crossbowBullet : MonoBehaviour {
 
     void makeBullet()
     {
+		this.GetComponent<AudioSource> ().PlayOneShot (fireSound, 0.7f);
         myBullet = Instantiate(bullet);
         myBullet.GetComponent<Transform>().SetParent(this.GetComponent<Transform>());
         myBullet.GetComponent<Transform>().localPosition = new Vector3(0,1,0);
@@ -78,6 +81,10 @@ public class crossbowBullet : MonoBehaviour {
     void OnTriggerExit(Collider col)
     {
         if (col.gameObject.tag != "soldier") return;
+		//if (target == null) {
+
+		//}
+
         if (targets.Count == 1)
         {
             targets.Remove(col.gameObject);
@@ -139,26 +146,57 @@ public class crossbowBullet : MonoBehaviour {
 
     void Fire()
     {
+		if(targets.Count==0){
+			endFire();
+			return;
+		}
+		ArrayList clean = new ArrayList ();
+		foreach (GameObject obj in targets) {
+
+			if(obj==null){
+				clean.Add(obj);
+				continue;
+			}
+			troop = obj.transform.GetComponent<Troop> ();
+			hero = obj.transform.GetComponent<Hero> ();
+			if(troop!=null){
+				if(obj!=target && troop.isDead)
+					clean.Add(obj);
+			}
+			else if(hero!=null){
+				if(hero.HP<=0){
+					clean.Add(obj);
+				}
+			}
+
+		}
+		foreach (GameObject obj in clean) {
+			targets.Remove(obj);
+		}
+		if (ifTargetisDead())
+		{
+			if(targets.Count==0){
+				endFire();
+			}
+			else if (targets.Count == 1)
+			{
+				targets.Remove(target);
+				endFire();
+			}
+			else
+			{
+				targets.Remove(target);
+				target = (GameObject)targets[0];
+				//makeBullet();
+			}
+		}
+
+
         if (incd == 0)
         {
-            if (ifTargetisDead())
-            {
-                if (targets.Count == 1)
-                {
-                    targets.Remove(target);
-                    endFire();
-                }
-                else
-                {
-                    targets.Remove(target);
-                    target = (GameObject)targets[0];
-                    makeBullet();
-                }
-            }
-            else
-            {
-                makeBullet();
-            }
+     
+            makeBullet();
+     
             incd += Time.deltaTime;
         }
         else if (incd >= CD)
@@ -173,9 +211,12 @@ public class crossbowBullet : MonoBehaviour {
 
     bool ifTargetisDead()
 	{
+		if (target.gameObject == null) {
+			return true;
+		}
 		troop = target.transform.GetComponent<Troop> ();
 		hero = target.transform.GetComponent<Hero> ();
-		if ((hero != null && hero.HP <= 0) || (troop != null && troop.isDead))                      //<<<<<<<<<---------------------------------------
+		if ((hero != null && hero.HP <= 0) || (troop != null && troop.isDead))
 		{
 			
 			return true;

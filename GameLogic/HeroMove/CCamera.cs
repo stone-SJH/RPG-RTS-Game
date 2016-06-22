@@ -17,7 +17,7 @@ public class CCamera : MonoBehaviour
 
     public float heightSmoothLag = 0.3f;
 
-    public float snapSmoothLag = 0.2f;
+    public float snapSmoothLag = 20f;
     public float snapMaxSpeed = 720.0f;
 
     public float clampHeadPositionScreenSpace = 0.75f;

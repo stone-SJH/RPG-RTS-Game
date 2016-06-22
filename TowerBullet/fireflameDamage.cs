@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
-
+[RequireComponent(typeof(AudioSource))]
 public class fireflameDamage : MonoBehaviour{
 
     public GameObject bullet;
@@ -22,6 +22,8 @@ public class fireflameDamage : MonoBehaviour{
     private Troop troop;
     private Hero hero;
 	private Hero hero2;
+
+	public AudioClip fireSound;
 
     // Use this for initialization
     void Start()
@@ -163,6 +165,7 @@ public class fireflameDamage : MonoBehaviour{
 
     void makeDamage()
     {
+		this.GetComponent<AudioSource> ().PlayOneShot (fireSound, 0.7f);
 		ArrayList cleaner = new ArrayList ();
         foreach(GameObject obj in targets)
         {

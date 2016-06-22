@@ -218,7 +218,7 @@ public class Skill9{
 	public int level = 0;
 	public int maxLevel = 5;
 	public float initialRadius = 50f;
-	public float radiusRatio = 5f;
+	public float radiusRatio = 10f;
 	public float initialLastTime = 10f;
 	public float lastTimeRatio = 1f;
 	public float slowRatio = 0.4f;

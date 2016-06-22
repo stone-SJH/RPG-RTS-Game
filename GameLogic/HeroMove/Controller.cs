@@ -286,7 +286,7 @@ public class Controller : MonoBehaviour
 
     void Update()
     {
-		if (hero.HP >= 0) {
+		if (hero.HP > 0) {
 			if (gms.RPGmode && canMove) {
 				walkSpeed = hero.speed * 0.3f;
 				if (!startTrot)
@@ -416,7 +416,7 @@ public class Controller : MonoBehaviour
 				}
 			}
 		} else {
-			if (!isDead){
+			if (!isDead && hero.toRTS){
 				isDead = true;
 				_animation.CrossFade(deadAnimation.name);
 				Invoke ("SinkAndDestroy", 3f);

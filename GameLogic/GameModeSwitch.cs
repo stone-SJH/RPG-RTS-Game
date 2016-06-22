@@ -17,6 +17,7 @@ public class GameModeSwitch : MonoBehaviour {
     public GameObject heroSkill;
     public GameObject heroHP;
 	public GameObject enemyHP;
+	public GameObject crystals;
 
     public GameObject troopsButton;
 
@@ -47,6 +48,7 @@ public class GameModeSwitch : MonoBehaviour {
         heroHP.active = false;
         troopsButton.active = true;
 		enemyHP.active = true;
+		crystals.active = true;
 	}
 	public void SwitchToRPG(){
 		RTSmode = false;
@@ -62,6 +64,7 @@ public class GameModeSwitch : MonoBehaviour {
         heroHP.active = true;
 		troopsButton.active = false;
 		enemyHP.active = false;
+		crystals.active = false;
     }
 	public void SwitchToNULL(){
 		RTSmode = false;

@@ -191,7 +191,7 @@ public class choosenode : MonoBehaviour
                 makeTroop.positions[new Vector2(obj.transform.position.x, obj.transform.position.z)] = false;
                 
                 obj.GetComponent<Move>().cur = this.transform.parent.transform.parent.GetComponent<RouteManager>().start[curNo];
-                yield return new WaitForSeconds(3.0f);
+                yield return new WaitForSeconds(2.0f);
                 Debug.Log("start move");
                 select.troops.Remove(obj);
                 obj.transform.GetComponent<Troop>().se.active = false;

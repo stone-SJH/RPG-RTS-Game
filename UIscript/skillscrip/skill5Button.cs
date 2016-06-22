@@ -10,12 +10,17 @@ public class skill5Button : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public Hero hero;
     private int level;
     private bool activited;
+    private GameObject myinfo;
+    public GameObject info;
 
+    private string information;
+    private string ll;
 
     // Use this for initialization
     void Start()
     {
-
+        information = hero.skill5.introduction;
+        ll = hero.skill5.GetAbility();
     }
 
     // Update is called once per frame
@@ -45,11 +50,15 @@ public class skill5Button : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-
+        myinfo = Instantiate(info);
+        myinfo.transform.SetParent(this.transform.parent);
+        myinfo.transform.localPosition = new Vector3(0, 300, 0);
+        myinfo.transform.FindChild("info").GetComponent<Text>().text = information + "\n" + ll;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-
+        if (myinfo != null)
+            Destroy(myinfo);
     }
 }

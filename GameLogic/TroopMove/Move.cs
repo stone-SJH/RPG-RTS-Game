@@ -36,7 +36,7 @@ public class Move : MonoBehaviour {
 		float zdistance = pos2.z - pos1.z;
 		float xratio = xdistance / distance;
 		float zratio = zdistance / distance;
-		if (distance < 5.0f) {
+		if (distance < 6.0f) {
 			if (cur.succ == null) {
 
 			} else

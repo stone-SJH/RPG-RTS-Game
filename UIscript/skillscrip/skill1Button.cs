@@ -9,10 +9,17 @@ public class skill1Button: MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public Hero hero;
     private int level;
     private bool activited;
+    private GameObject myinfo;
+    public GameObject info;
 
+    private string information;
+    private string ll;
 
 	// Use this for initialization
 	void Start () {
+        
+        information = hero.skill1.introduction;
+        ll = hero.skill1.GetAbility();
         
 	}
 	
@@ -43,13 +50,17 @@ public class skill1Button: MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        
+        myinfo = Instantiate(info);
+        myinfo.transform.SetParent(this.transform.parent);
+        myinfo.transform.localPosition = new Vector3(0, 300, 0);
+        myinfo.transform.FindChild("info").GetComponent<Text>().text = information + "\n" + ll;
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
-
     {
-        
+        if (myinfo != null)
+            Destroy(myinfo);
     }
 
 }

@@ -57,9 +57,13 @@ public class ItemManager : MonoBehaviour {
 		return null;
 	}
 
-	void Start () {
+	void Awake(){
+		
 		if (!CacheDone)
 			BuildCache ();
+	}
+
+	void Start () {
 	}
 
 	// Update is called once per frame
